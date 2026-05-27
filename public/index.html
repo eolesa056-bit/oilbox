@@ -19,7 +19,7 @@
             padding: 20px;
         }
 
-        /* Верхняя панель */
+        /* Верхняя панель: монеты и гемы слева, аватарка и путь к славе по центру, гамбургер справа */
         .top-bar {
             position: fixed;
             top: 20px;
@@ -29,12 +29,35 @@
             justify-content: space-between;
             align-items: center;
             z-index: 100;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        .left-group {
+        .left-resources {
+            display: flex;
+            gap: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+        }
+
+        .resource {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .resource span:first-child {
+            font-size: 24px;
+        }
+
+        .center-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
 
         .floating-avatar {
@@ -100,6 +123,29 @@
             color: white;
         }
 
+        /* Кнопка Бравл Пасс в левом нижнем углу */
+        .brawl-pass-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: linear-gradient(135deg, #e94560, #b91c3c);
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            color: white;
+            box-shadow: 0 0 15px rgba(233,69,96,0.5);
+            z-index: 150;
+            transition: 0.2s;
+        }
+
+        .brawl-pass-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px #e94560;
+        }
+
         /* Кнопка ИГРАТЬ снизу справа */
         .play-fixed {
             position: fixed;
@@ -123,8 +169,8 @@
             box-shadow: 0 0 30px rgba(0,255,136,0.8);
         }
 
-        /* Модальное окно выбора режима */
-        .battle-modal {
+        /* Модальное окно Бравл Пасса */
+        .pass-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -132,139 +178,136 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.95);
-            z-index: 300;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .battle-container {
-            background: linear-gradient(145deg, #0f172a, #020617);
-            width: 90%;
-            max-width: 550px;
-            border-radius: 60px;
-            border: 2px solid #e94560;
-            padding: 35px;
-            text-align: center;
-            box-shadow: 0 0 50px rgba(233,69,96,0.4);
-        }
-
-        .mode-selector-battle {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        .mode-btn {
-            background: rgba(233,69,96,0.2);
-            border: 1px solid #e94560;
-            padding: 10px 15px;
-            border-radius: 50px;
-            color: white;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 14px;
-        }
-
-        .mode-btn.active {
-            background: #e94560;
-            box-shadow: 0 0 10px #e94560;
-        }
-
-        .game-count {
-            margin: 20px 0;
-        }
-
-        .game-count input {
-            width: 80px;
-            padding: 8px;
-            text-align: center;
-            background: #0f172a;
-            border: 1px solid #e94560;
-            border-radius: 50px;
-            color: white;
-        }
-
-        .close-battle {
-            background: #e94560;
-            padding: 10px 25px;
-            border: none;
-            border-radius: 50px;
-            color: white;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-
-        /* ОКНО ВИРТУАЛЬНОЙ ИГРЫ (общий таймер 30 сек) */
-        .gameplay-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.98);
             z-index: 400;
             justify-content: center;
             align-items: center;
         }
 
-        .gameplay-container {
+        .pass-container {
             background: linear-gradient(145deg, #0f172a, #020617);
             width: 90%;
-            max-width: 500px;
+            max-width: 900px;
             border-radius: 60px;
-            border: 2px solid #00ff88;
+            border: 2px solid #e94560;
             padding: 35px;
-            text-align: center;
-        }
-
-        .gameplay-timer {
-            font-size: 64px;
-            font-weight: bold;
-            color: #00ff88;
-            margin: 20px 0;
-        }
-
-        .gameplay-battles {
-            margin: 20px 0;
-            max-height: 300px;
+            position: relative;
+            max-height: 85vh;
             overflow-y: auto;
         }
 
-        .battle-result-line {
-            padding: 8px;
-            margin: 5px 0;
-            background: rgba(255,255,255,0.05);
-            border-radius: 20px;
+        .pass-header {
+            text-align: center;
+            margin-bottom: 25px;
         }
 
-        /* Окно итогов сессии */
-        .results-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 350;
-            justify-content: center;
+        .pass-header h2 {
+            font-size: 32px;
+            background: linear-gradient(135deg, #fff, #f9a826);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .pass-tracks {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .track {
+            background: rgba(0,0,0,0.5);
+            border-radius: 40px;
+            padding: 20px;
+        }
+
+        .track-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
         }
 
-        .results-container {
-            background: linear-gradient(145deg, #0f172a, #020617);
-            width: 90%;
-            max-width: 500px;
-            border-radius: 60px;
-            border: 2px solid #f9a826;
-            padding: 35px;
-            text-align: center;
+        .track-premium .track-title {
+            color: #f9a826;
         }
 
-        /* Остальные стили (профиль, путь к славе, лидеры, история) — сокращённо, без изменений */
+        .track-free .track-title {
+            color: #00ff88;
+        }
+
+        .track-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            padding: 10px 5px;
+        }
+
+        .reward-tier {
+            flex: 0 0 110px;
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border-radius: 30px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #2a2a5a;
+            position: relative;
+        }
+
+        .reward-tier.available {
+            border-color: #f9a826;
+            background: linear-gradient(145deg, #2a2a5a, #1e293b);
+        }
+
+        .reward-tier.claimed {
+            opacity: 0.6;
+        }
+
+        .tier-level {
+            font-size: 16px;
+            font-weight: bold;
+            color: #aaa;
+        }
+
+        .tier-reward {
+            font-size: 28px;
+            margin: 10px 0;
+        }
+
+        .claim-tier-btn {
+            background: #e94560;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-top: 8px;
+            color: white;
+        }
+
+        .activate-premium-btn {
+            background: linear-gradient(135deg, #f9a826, #e94560);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .close-pass {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            background: #e94560;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        /* Остальные стили (гамбургер-меню, профиль, лидеры и т.д.) — сокращённо, без изменений */
         .menu-panel {
             display: none;
             position: fixed;
@@ -380,7 +423,11 @@
 </head>
 <body>
     <div class="top-bar">
-        <div class="left-group">
+        <div class="left-resources">
+            <div class="resource"><span>💰</span> <span id="coinsDisplay">0</span></div>
+            <div class="resource"><span>💎</span> <span id="gemsDisplay">0</span></div>
+        </div>
+        <div class="center-group">
             <div class="floating-avatar" onclick="openProfileModal()">
                 <div class="mini-avatar" id="miniAvatar">🎮</div>
                 <div class="nickname-overlay" id="miniNickname">-</div>
@@ -398,40 +445,30 @@
         <button onclick="openModal('link')">🔗 ПРИВЯЗКА АККАУНТА</button>
     </div>
 
-    <!-- ОКНО ВЫБОРА РЕЖИМА -->
-    <div id="battleModal" class="battle-modal">
-        <div class="battle-container">
-            <h2 class="battle-title">🎮 ВЫБОР РЕЖИМА</h2>
-            <div class="mode-selector-battle" id="battleModeSelector">
-                <div class="mode-btn" data-mode="crystal">💎 ЗАХВАТ КРИСТАЛЛОВ</div>
-                <div class="mode-btn" data-mode="brawlball">⚽ БРОУЛБОЛ</div>
-                <div class="mode-btn" data-mode="bounty">💰 НАГРАДА ЗА ПОЙМКУ</div>
-                <div class="mode-btn" data-mode="showdown">🥊 СТОЛКНОВЕНИЕ</div>
-                <div class="mode-btn" data-mode="heist">🏦 ОГРАБЛЕНИЕ</div>
+    <!-- ОКНО БРАВЛ ПАСС -->
+    <div id="passModal" class="pass-modal">
+        <div class="pass-container">
+            <button class="close-pass" onclick="closePassModal()">✖</button>
+            <div class="pass-header">
+                <h2>🏆 BRAWL PASS 🏆</h2>
             </div>
-            <div class="game-count">
-                <label>🎮 ИГР ЗА РАЗ: </label>
-                <input type="number" id="battleGamesCount" min="1" max="25" value="3">
+            <div class="pass-tracks">
+                <!-- Премиум дорожка -->
+                <div class="track track-premium" id="premiumTrack">
+                    <div class="track-title">
+                        <span>💎 ПРЕМИУМ НАГРАДЫ</span>
+                        <button id="activatePremiumBtn" class="activate-premium-btn">АКТИВИРОВАТЬ (169💎)</button>
+                    </div>
+                    <div class="track-scroll" id="premiumScroll"></div>
+                </div>
+                <!-- Бесплатная дорожка -->
+                <div class="track track-free">
+                    <div class="track-title">
+                        <span>🎁 БЕСПЛАТНЫЕ НАГРАДЫ</span>
+                    </div>
+                    <div class="track-scroll" id="freeScroll"></div>
+                </div>
             </div>
-            <button class="close-battle" onclick="closeBattleModal()">✖ ЗАКРЫТЬ</button>
-        </div>
-    </div>
-
-    <!-- ОКНО ВИРТУАЛЬНОЙ ИГРЫ (общая симуляция всех матчей за 30 сек) -->
-    <div id="gameplayModal" class="gameplay-modal">
-        <div class="gameplay-container">
-            <h2 id="gameplayModeName">💎 ЗАХВАТ КРИСТАЛЛОВ</h2>
-            <div class="gameplay-timer" id="gameplayTimer">30</div>
-            <div id="gameplayBattles" class="gameplay-battles"></div>
-        </div>
-    </div>
-
-    <!-- ОКНО ИТОГОВ СЕССИИ -->
-    <div id="resultsModal" class="results-modal">
-        <div class="results-container">
-            <h2>🏆 ИТОГИ СЕССИИ</h2>
-            <div id="resultsContent"></div>
-            <button class="close-battle" onclick="closeResultsModal()">✖ ЗАКРЫТЬ</button>
         </div>
     </div>
 
@@ -450,6 +487,7 @@
     <div id="authPanel" class="modal" style="display:flex; background:rgba(0,0,0,0.95);"><div class="profile-container" style="max-width:400px;"><h2>🔐 ВХОД</h2><input type="text" id="nickname" placeholder="Никнейм"><div id="adminPasswordGroup" class="hidden"><input type="password" id="adminPassword" placeholder="Пароль админа"></div><button class="btn" onclick="login()">ВОЙТИ</button><div id="authMessage"></div></div></div>
     <div id="gamePanel" class="hidden"><div class="main-menu"><h1>⚡ BRAWL BOX ⚡</h1><div class="game-placeholder"><p>Нажми кнопку "ИГРАТЬ" снизу справа</p></div></div></div>
 
+    <button class="brawl-pass-btn" onclick="openPassModal()">🎫 BRAWL PASS</button>
     <button class="play-fixed" id="globalPlayBtn">🎮 ИГРАТЬ</button>
 
     <script>
@@ -459,10 +497,187 @@
         let currentLeaderTab = 'cups';
         let battleHistory = [];
         let currentBattleMode = 'crystal';
-        let gamesToPlay = 3;
-        let totalWins = 0;
-        let totalReward = 0;
-        let battleResults = [];
+        
+        // Данные Бравл Пасса
+        let passData = {
+            premiumActive: false,
+            currentLevel: 1,
+            claimedFree: [],
+            claimedPremium: []
+        };
+        
+        const passRewards = {
+            free: [
+                { level: 1, reward: "50💰", type: "coins", value: 50 },
+                { level: 2, reward: "🎁", type: "box", value: 1 },
+                { level: 3, reward: "100💰", type: "coins", value: 100 },
+                { level: 4, reward: "🎁✨", type: "box", value: 1 },
+                { level: 5, reward: "200💰", type: "coins", value: 200 },
+                { level: 6, reward: "⭐", type: "skin", value: "star" },
+                { level: 7, reward: "300💰", type: "coins", value: 300 },
+                { level: 8, reward: "🎁⭐", type: "box", value: 1 },
+                { level: 9, reward: "500💰", type: "coins", value: 500 },
+                { level: 10, reward: "👑", type: "brawler", value: "exclusive" }
+            ],
+            premium: [
+                { level: 1, reward: "100💰", type: "coins", value: 100 },
+                { level: 2, reward: "🎁✨", type: "box", value: 1 },
+                { level: 3, reward: "200💰", type: "coins", value: 200 },
+                { level: 4, reward: "🔥", type: "skin", value: "legendary" },
+                { level: 5, reward: "300💰", type: "coins", value: 300 },
+                { level: 6, reward: "🎁⭐", type: "box", value: 1 },
+                { level: 7, reward: "500💰", type: "coins", value: 500 },
+                { level: 8, reward: "💎", type: "gems", value: 50 },
+                { level: 9, reward: "1000💰", type: "coins", value: 1000 },
+                { level: 10, reward: "🏆", type: "title", value: "champion" }
+            ]
+        };
+        
+        function initPassData() {
+            const saved = localStorage.getItem('brawlPass_' + currentPlayerId);
+            if (saved) {
+                passData = JSON.parse(saved);
+            } else {
+                passData = { premiumActive: false, currentLevel: 1, claimedFree: [], claimedPremium: [] };
+            }
+            renderPass();
+        }
+        
+        function renderPass() {
+            // Бесплатная дорожка
+            const freeScroll = document.getElementById('freeScroll');
+            if (freeScroll) {
+                freeScroll.innerHTML = '';
+                passRewards.free.forEach((reward, idx) => {
+                    const level = idx + 1;
+                    const isAvailable = level <= passData.currentLevel && !passData.claimedFree.includes(level);
+                    const isClaimed = passData.claimedFree.includes(level);
+                    const div = document.createElement('div');
+                    div.className = `reward-tier ${isAvailable ? 'available' : (isClaimed ? 'claimed' : '')}`;
+                    div.innerHTML = `
+                        <div class="tier-level">УРОВЕНЬ ${level}</div>
+                        <div class="tier-reward">${reward.reward}</div>
+                        ${isAvailable ? `<button class="claim-tier-btn" data-track="free" data-level="${level}">ЗАБРАТЬ</button>` : (isClaimed ? '✅' : '🔒')}
+                    `;
+                    freeScroll.appendChild(div);
+                });
+            }
+            
+            // Премиум дорожка (видна только если активна)
+            const premiumTrack = document.getElementById('premiumTrack');
+            const premiumScroll = document.getElementById('premiumScroll');
+            if (premiumScroll) {
+                if (passData.premiumActive) {
+                    premiumTrack.style.display = 'block';
+                    premiumScroll.innerHTML = '';
+                    passRewards.premium.forEach((reward, idx) => {
+                        const level = idx + 1;
+                        const isAvailable = level <= passData.currentLevel && !passData.claimedPremium.includes(level);
+                        const isClaimed = passData.claimedPremium.includes(level);
+                        const div = document.createElement('div');
+                        div.className = `reward-tier ${isAvailable ? 'available' : (isClaimed ? 'claimed' : '')}`;
+                        div.innerHTML = `
+                            <div class="tier-level">УРОВЕНЬ ${level}</div>
+                            <div class="tier-reward">${reward.reward}</div>
+                            ${isAvailable ? `<button class="claim-tier-btn" data-track="premium" data-level="${level}">ЗАБРАТЬ</button>` : (isClaimed ? '✅' : '🔒')}
+                        `;
+                        premiumScroll.appendChild(div);
+                    });
+                } else {
+                    premiumTrack.style.display = 'block';
+                    premiumScroll.innerHTML = '<div style="text-align:center; width:100%; padding:20px;">💎 ПРЕМИУМ НЕ АКТИВИРОВАН 💎</div>';
+                }
+            }
+            
+            // Кнопка активации премиум
+            const activateBtn = document.getElementById('activatePremiumBtn');
+            if (activateBtn) {
+                if (passData.premiumActive) {
+                    activateBtn.style.display = 'none';
+                } else {
+                    activateBtn.style.display = 'inline-block';
+                    activateBtn.onclick = () => activatePremium();
+                }
+            }
+            
+            // Назначаем обработчики для кнопок ЗАБРАТЬ
+            document.querySelectorAll('.claim-tier-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    const track = btn.getAttribute('data-track');
+                    const level = parseInt(btn.getAttribute('data-level'));
+                    claimPassReward(track, level);
+                };
+            });
+        }
+        
+        async function activatePremium() {
+            if (passData.premiumActive) return;
+            // Проверяем, хватает ли гемов (169)
+            const gems = parseInt(document.getElementById('gemsDisplay').innerText) || 0;
+            if (gems < 169) {
+                alert('Не хватает гемов! Нужно 169💎');
+                return;
+            }
+            // Списываем гемы
+            await fetch('/api/spend_gems', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, gems: 169 }) });
+            passData.premiumActive = true;
+            savePassData();
+            renderPass();
+            refreshProfileData();
+        }
+        
+        async function claimPassReward(track, level) {
+            if (track === 'free' && passData.claimedFree.includes(level)) return;
+            if (track === 'premium' && (!passData.premiumActive || passData.claimedPremium.includes(level))) return;
+            
+            const rewards = track === 'free' ? passRewards.free : passRewards.premium;
+            const reward = rewards[level-1];
+            
+            // Начисляем награду
+            if (reward.type === 'coins') {
+                await fetch('/api/add_coins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, coins: reward.value }) });
+            } else if (reward.type === 'gems') {
+                await fetch('/api/add_gems', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, gems: reward.value }) });
+            } else if (reward.type === 'box') {
+                await fetch('/api/add_box', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId }) });
+            }
+            // Для скинов и бойцов — заглушка
+            
+            if (track === 'free') {
+                passData.claimedFree.push(level);
+            } else {
+                passData.claimedPremium.push(level);
+            }
+            savePassData();
+            renderPass();
+            refreshProfileData();
+        }
+        
+        function savePassData() {
+            localStorage.setItem('brawlPass_' + currentPlayerId, JSON.stringify(passData));
+        }
+        
+        // Добавление опыта для повышения уровня пасса (вызывается после боя)
+        async function addPassExperience(exp) {
+            if (!currentPlayerId) return;
+            // За каждый бой даём 10 опыта, за победу +5
+            let newLevel = passData.currentLevel;
+            // Простая логика: 100 опыта на уровень
+            let currentExp = passData.currentExp || 0;
+            currentExp += exp;
+            while (currentExp >= 100 && newLevel < 10) {
+                currentExp -= 100;
+                newLevel++;
+            }
+            passData.currentLevel = newLevel;
+            passData.currentExp = currentExp;
+            savePassData();
+            renderPass();
+        }
+
+        // Остальной код (лидеры, профиль, бои) без изменений, только добавим вызов addPassExperience в конец боя
+        // (см. функцию finishSimulation)
         
         const DEV_AVATAR_URL = "https://yt3.googleusercontent.com/wEnonoxntKdkIuHZbNouYlz6YoCchSbx7tpBRaVS6V08XzJYkvNZaG34RwZV7khnoF6hqI-kGw=s900-c-k-c0x00ffffff-no-rj";
         
@@ -490,17 +705,16 @@
             if(document.querySelector('.settings-row .settings-label')) document.querySelector('.settings-row .settings-label').innerHTML = t.language;
         }
 
-        // НОВАЯ ЛОГИКА: все матчи симулируются одновременно за 30 секунд
+        // БОЕВАЯ ЛОГИКА (с добавлением опыта пасса)
         function startBattleSession() {
-            gamesToPlay = parseInt(document.getElementById('battleGamesCount').value) || 3;
+            const gamesToPlay = parseInt(document.getElementById('battleGamesCount').value) || 3;
             if (gamesToPlay < 1 || gamesToPlay > 25) { alert('Количество игр от 1 до 25'); return; }
             
             closeBattleModal();
             
-            // Симулируем результаты всех матчей сразу
-            battleResults = [];
-            totalWins = 0;
-            totalReward = 0;
+            let battleResults = [];
+            let totalWins = 0;
+            let totalReward = 0;
             
             for (let i = 0; i < gamesToPlay; i++) {
                 const isWin = Math.random() < 0.6;
@@ -511,7 +725,6 @@
                 battleResults.push({ isWin, reward, cupsGain });
             }
             
-            // Открываем окно симуляции
             document.getElementById('gameplayModeName').innerHTML = gameModes[currentBattleMode].name;
             document.getElementById('gameplayBattles').innerHTML = '';
             let timeLeft = 30;
@@ -523,15 +736,14 @@
                 timerElement.textContent = timeLeft;
                 if (timeLeft <= 0) {
                     clearInterval(interval);
-                    finishSimulation();
+                    finishSimulation(battleResults, totalWins, totalReward, gamesToPlay);
                 }
             }, 1000);
             
             document.getElementById('gameplayModal').style.display = 'flex';
         }
         
-        function finishSimulation() {
-            // Показываем результаты боёв
+        function finishSimulation(battleResults, totalWins, totalReward, gamesToPlay) {
             const container = document.getElementById('gameplayBattles');
             container.innerHTML = '';
             for (let i = 0; i < battleResults.length; i++) {
@@ -567,23 +779,25 @@
             }
             updatePlayerBalance(totalCoins, totalCups);
             
-            // Закрываем окно симуляции через 3 секунды и показываем итоги
+            // Добавляем опыт пасса (10 за бой, +5 за победу)
+            let expGain = battleResults.length * 10;
+            expGain += battleResults.filter(r => r.isWin).length * 5;
+            addPassExperience(expGain);
+            
             setTimeout(() => {
                 document.getElementById('gameplayModal').style.display = 'none';
-                showResults();
+                showResults(totalWins, totalReward, gamesToPlay);
             }, 3000);
         }
         
-        function showResults() {
+        function showResults(totalWins, totalReward, gamesToPlay) {
             const resultsContent = document.getElementById('resultsContent');
             resultsContent.innerHTML = `<div style="font-size:24px; margin:20px;">⭐ ПОБЕД: ${totalWins}/${gamesToPlay}</div>
                                         <div style="font-size:24px; margin:20px;">💰 ВСЕГО МОНЕТ: ${totalReward}</div>`;
             document.getElementById('resultsModal').style.display = 'flex';
         }
         
-        function closeResultsModal() {
-            document.getElementById('resultsModal').style.display = 'none';
-        }
+        function closeResultsModal() { document.getElementById('resultsModal').style.display = 'none'; }
         
         async function updatePlayerBalance(coins, cups) {
             if (!currentPlayerId) return;
@@ -678,7 +892,11 @@
                 const avatar = data.avatar || '🎮';
                 const nickname = data.nickname;
                 const nicknameColor = data.nickname_color || '#ffffff';
+                const coins = data.coins || 0;
+                const gems = data.gems || 0;
                 currentCups = data.cups || 0;
+                document.getElementById('coinsDisplay').innerText = coins;
+                document.getElementById('gemsDisplay').innerText = gems;
                 document.getElementById('miniNickname').innerText = nickname.length > 10 ? nickname.slice(0,9)+'…' : nickname;
                 document.getElementById('miniNickname').style.color = nicknameColor;
                 if (avatar.startsWith('http')) {
@@ -695,7 +913,7 @@
                 document.getElementById('profileTotalCups').innerText = currentCups;
                 document.getElementById('recordCups').innerText = data.record_cups || currentCups;
                 document.getElementById('profileBoxes').innerText = data.total_boxes || 0;
-                document.getElementById('profileCoins').innerText = data.coins || 0;
+                document.getElementById('profileCoins').innerText = coins;
                 updateGloryUI();
             }
         }
@@ -755,6 +973,12 @@
         }
         function closeBattleModal() { document.getElementById('battleModal').style.display = 'none'; }
         
+        function openPassModal() {
+            initPassData();
+            document.getElementById('passModal').style.display = 'flex';
+        }
+        function closePassModal() { document.getElementById('passModal').style.display = 'none'; }
+        
         async function changeAvatar(avatarValue, isUrl = false) { await fetch('/api/change_avatar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, avatar: isUrl ? DEV_AVATAR_URL : avatarValue }) }); await refreshProfileData(); closeAvatarPicker(); }
         async function changeNickname() { const newNick = document.getElementById('newNicknameInput').value.trim(); if (!newNick) return alert("Введи никнейм"); const res = await fetch('/api/change_nickname', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, newNickname: newNick, color: null }) }); const data = await res.json(); if (data.success) { await refreshProfileData(); closeNicknameEditor(); } else alert(data.message || "Ошибка"); }
         async function changeColorOnly(color) { await fetch('/api/change_nickname', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, color: color }) }); await refreshProfileData(); }
@@ -762,10 +986,7 @@
         function closeProfileModal() { document.getElementById('profileModal').style.display = 'none'; }
         function openPathModal() { refreshProfileData(); document.getElementById('pathModal').style.display = 'flex'; }
         function closePathModal() { document.getElementById('pathModal').style.display = 'none'; }
-        function openAvatarPicker() { document.getElementById('avatarPickerModal').style.display = 'flex'; const container = document.getElementById('avatarSelector'); const avatars = ['🎮','⭐','🔥','🐺','🤖','👑','⚡','😈', '👑 DEV']; 
-            container.innerHTML = avatars.map(a => `<div class="avatar-option" data-avatar="${a}">${a}</div>`).join('');
-            document.querySelectorAll('.avatar-option').forEach(opt => opt.onclick = () => changeAvatar(opt.getAttribute('data-avatar'), opt.getAttribute('data-avatar') === '👑 DEV')); 
-        }
+        function openAvatarPicker() { document.getElementById('avatarPickerModal').style.display = 'flex'; const container = document.getElementById('avatarSelector'); const avatars = ['🎮','⭐','🔥','🐺','🤖','👑','⚡','😈', '👑 DEV']; container.innerHTML = avatars.map(a => `<div class="avatar-option" data-avatar="${a}">${a}</div>`).join(''); document.querySelectorAll('.avatar-option').forEach(opt => opt.onclick = () => changeAvatar(opt.getAttribute('data-avatar'), opt.getAttribute('data-avatar') === '👑 DEV')); }
         function closeAvatarPicker() { document.getElementById('avatarPickerModal').style.display = 'none'; }
         function openNicknameEditor() { document.getElementById('nicknameEditorModal').style.display = 'flex'; }
         function closeNicknameEditor() { document.getElementById('nicknameEditorModal').style.display = 'none'; }
