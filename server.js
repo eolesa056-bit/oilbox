@@ -5,7 +5,7 @@ const port = process.env.PORT || 3000;
 
 const db = new sqlite3.Database('database.db');
 
-// Создание таблиц
+// ========== СОЗДАНИЕ ТАБЛИЦ ==========
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,7 +21,11 @@ db.serialize(() => {
         record_cups INTEGER DEFAULT 0,
         is_admin INTEGER DEFAULT 0
     )`);
-
+    
+    // Добавляем колонки, если их нет (для старых баз)
+    db.run(`ALTER TABLE users ADD COLUMN nickname_color TEXT DEFAULT '#ffffff'`, () => {});
+    db.run(`ALTER TABLE users ADD COLUMN record_cups INTEGER DEFAULT 0`, () => {});
+    
     // Админ unity / ALT F4
     db.get(`SELECT * FROM users WHERE login = 'unity'`, (err, row) => {
         if (!row) {
@@ -87,7 +91,7 @@ app.post('/api/login', (req, res) => {
 app.get('/api/users', (req, res) => {
     db.all(`SELECT id, nickname, avatar, cups, total_boxes FROM users`, (err, users) => {
         if (err) return res.json([]);
-        res.json(users);
+        res.json(users || []);
     });
 });
 
@@ -111,6 +115,33 @@ app.post('/api/change_avatar', (req, res) => {
 app.post('/api/change_nickname', (req, res) => {
     const { playerId, color } = req.body;
     db.run(`UPDATE users SET nickname_color = ? WHERE id = ?`, [color, playerId]);
+    res.json({ success: true });
+});
+
+// Добавление монет (для игрового режима)
+app.post('/api/add_coins', (req, res) => {
+    const { playerId, coins } = req.body;
+    db.run(`UPDATE users SET coins = coins + ? WHERE id = ?`, [coins, playerId]);
+    res.json({ success: true });
+});
+
+// Добавление кубков и обновление рекорда
+app.post('/api/add_cups', (req, res) => {
+    const { playerId, cups } = req.body;
+    db.get(`SELECT cups, record_cups FROM users WHERE id = ?`, [playerId], (err, user) => {
+        if (user) {
+            const newCups = (user.cups || 0) + cups;
+            const newRecord = Math.max(user.record_cups || 0, newCups);
+            db.run(`UPDATE users SET cups = ?, record_cups = ? WHERE id = ?`, [newCups, newRecord, playerId]);
+        }
+        res.json({ success: true });
+    });
+});
+
+// Сохранение пути к славе
+app.post('/api/save_path', (req, res) => {
+    const { playerId, pathData } = req.body;
+    db.run(`UPDATE users SET path_data = ? WHERE id = ?`, [JSON.stringify(pathData), playerId]);
     res.json({ success: true });
 });
 
