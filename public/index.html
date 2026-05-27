@@ -19,6 +19,21 @@
             padding: 20px;
         }
 
+        /* Анимация переливающегося текста */
+        @keyframes rainbow {
+            0% { text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000; color: #ff0000; }
+            20% { text-shadow: 0 0 5px #ffff00, 0 0 10px #ffff00; color: #ffff00; }
+            40% { text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; color: #00ff00; }
+            60% { text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff; color: #00ffff; }
+            80% { text-shadow: 0 0 5px #0000ff, 0 0 10px #0000ff; color: #0000ff; }
+            100% { text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff; color: #ff00ff; }
+        }
+
+        .rainbow-text {
+            animation: rainbow 2s infinite;
+            font-weight: bold;
+        }
+
         /* Верхняя панель */
         .top-bar {
             position: fixed;
@@ -33,7 +48,6 @@
             gap: 15px;
         }
 
-        /* Левая группа: аватарка и путь к славе */
         .left-group {
             display: flex;
             align-items: center;
@@ -87,7 +101,6 @@
             white-space: nowrap;
         }
 
-        /* Правая группа: монеты, гемы и гамбургер */
         .right-group {
             display: flex;
             align-items: center;
@@ -109,6 +122,7 @@
             gap: 8px;
             font-size: 18px;
             font-weight: bold;
+            color: white;
         }
 
         .resource span:first-child {
@@ -149,7 +163,6 @@
             transition: 0.2s;
         }
 
-        /* Кнопка ИГРАТЬ снизу справа */
         .play-fixed {
             position: fixed;
             bottom: 30px;
@@ -167,7 +180,7 @@
             transition: 0.2s;
         }
 
-        /* Остальные стили (меню, модальные окна) — без изменений */
+        /* Модальные окна */
         .menu-panel {
             display: none;
             position: fixed;
@@ -280,7 +293,7 @@
         .color-options { display: flex; gap: 20px; justify-content: center; margin: 30px 0; flex-wrap: wrap; }
         .color-circle { width: 55px; height: 55px; border-radius: 50%; cursor: pointer; border: 3px solid #fff; }
         
-        /* Окна Бравл Пасса */
+        /* Окна Бравл Пасса и боя */
         .pass-modal {
             display: none;
             position: fixed;
@@ -311,7 +324,7 @@
         .pass-progress-fill { background: linear-gradient(90deg, #f9a826, #e94560); width: 0%; height: 100%; border-radius: 20px; }
         .pass-tracks { display: flex; flex-direction: column; gap: 30px; margin-top: 20px; }
         .track { background: rgba(0,0,0,0.5); border-radius: 40px; padding: 20px; }
-        .track-title { font-size: 24px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .track-title { font-size: 24px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .track-premium .track-title { color: #f9a826; }
         .track-free .track-title { color: #00ff88; }
         .track-scroll { display: flex; overflow-x: auto; gap: 15px; padding: 10px 5px; }
@@ -321,7 +334,8 @@
         .tier-level { font-size: 16px; font-weight: bold; color: #aaa; }
         .tier-reward { font-size: 28px; margin: 10px 0; }
         .claim-tier-btn { background: #e94560; border: none; padding: 5px 12px; border-radius: 30px; font-size: 11px; cursor: pointer; margin-top: 8px; color: white; }
-        .activate-premium-btn { background: linear-gradient(135deg, #f9a826, #e94560); border: none; padding: 8px 20px; border-radius: 50px; font-size: 14px; cursor: pointer; font-weight: bold; }
+        .claim-tier-btn.disabled { opacity: 0.5; cursor: not-allowed; }
+        .activate-premium-btn, .buy-level-btn { background: linear-gradient(135deg, #f9a826, #e94560); border: none; padding: 8px 20px; border-radius: 50px; font-size: 14px; cursor: pointer; font-weight: bold; }
         .activation-modal {
             display: none;
             position: fixed;
@@ -403,7 +417,7 @@
         <button onclick="openModal('link')">🔗 ПРИВЯЗКА АККАУНТА</button>
     </div>
 
-    <!-- Окна (профиль, путь к славе, лидеры, история, бравл пасс, бои) — сокращённо -->
+    <!-- Окна (профиль, путь к славе, лидеры, история) -->
     <div id="settingsModal" class="modal"><div class="settings-container"><button class="close-modal" onclick="closeModal('settingsModal')">✖</button><h2>⚙️ НАСТРОЙКИ</h2><div class="settings-row"><span class="settings-label">🌐 ЯЗЫК</span><select id="languageSelect" class="lang-select"><option value="ru">Русский</option><option value="en">English</option></select></div></div></div>
     <div id="historyModal" class="modal"><div class="history-container"><button class="close-modal" onclick="closeModal('historyModal')">✖</button><h2>📜 ИСТОРИЯ БОЕВ</h2><div id="historyList" class="history-list">Нет боёв</div></div></div>
     <div id="leadersModal" class="modal"><div class="leaders-container"><button class="close-modal" onclick="closeModal('leadersModal')">✖</button><h2>🏆 СПИСКИ ЛИДЕРОВ</h2><div class="leaders-tabs"><button class="leaders-tab active" onclick="switchLeaderTab('cups')">🏆 ПО КУБКАМ</button><button class="leaders-tab" onclick="switchLeaderTab('brawlers')">🤖 ПО БОЙЦАМ</button></div><div id="leadersList" class="leaders-list">Загрузка...</div></div></div>
@@ -418,9 +432,41 @@
     <div id="authPanel" class="modal" style="display:flex; background:rgba(0,0,0,0.95);"><div class="profile-container" style="max-width:400px;"><h2>🔐 ВХОД</h2><input type="text" id="nickname" placeholder="Никнейм"><div id="adminPasswordGroup" class="hidden"><input type="password" id="adminPassword" placeholder="Пароль админа"></div><button class="btn" onclick="login()">ВОЙТИ</button><div id="authMessage"></div></div></div>
     <div id="gamePanel" class="hidden"><div class="main-menu"><h1>⚡ BRAWL BOX ⚡</h1><div class="game-placeholder"><p>Нажми кнопку "ИГРАТЬ" снизу справа</p></div></div></div>
 
-    <!-- Окна Бравл Пасса и боя (сокращённо, без изменений) -->
-    <div id="passModal" class="pass-modal"><div class="pass-container"><button class="close-pass" onclick="closePassModal()">✖</button><div class="pass-header"><h2>🏆 BRAWL PASS 🏆</h2></div><div class="pass-level">УРОВЕНЬ: <span id="passCurrentLevel">1</span> / 10</div><div class="pass-progress"><div class="pass-progress-fill" id="passProgressFill"></div></div><div class="pass-tracks"><div class="track track-premium" id="premiumTrack"><div class="track-title"><span>💎 ПРЕМИУМ НАГРАДЫ</span><button id="activatePremiumBtn" class="activate-premium-btn">АКТИВИРОВАТЬ (169💎)</button></div><div class="track-scroll" id="premiumScroll"></div></div><div class="track track-free"><div class="track-title"><span>🎁 БЕСПЛАТНЫЕ НАГРАДЫ</span></div><div class="track-scroll" id="freeScroll"></div></div></div></div></div>
-    <div id="activationModal" class="activation-modal"><div class="activation-container"><button class="close-pass" onclick="closeActivationModal()">✖</button><h2>🔓 ПОЛУЧИТЬ BRAWL PASS</h2><div class="activation-options"><button class="activation-btn" onclick="activatePremium(169)">💎 BRAWL PASS (169💎)</button><button class="activation-btn premium" onclick="activatePremiumWithLevels(249)">🔥 BRAWL PASS + 10 УРОВНЕЙ (249💎)</button></div></div></div>
+    <!-- Окна Бравл Пасса -->
+    <div id="passModal" class="pass-modal">
+        <div class="pass-container">
+            <button class="close-pass" onclick="closePassModal()">✖</button>
+            <div class="pass-header"><h2>🏆 BRAWL PASS 🏆</h2></div>
+            <div class="pass-level">УРОВЕНЬ: <span id="passCurrentLevel">1</span> / 10</div>
+            <div class="pass-progress"><div class="pass-progress-fill" id="passProgressFill"></div></div>
+            <div style="display: flex; gap: 10px; justify-content: center; margin: 10px 0;">
+                <button class="buy-level-btn" onclick="buyLevel()">📈 КУПИТЬ УРОВЕНЬ (50💎)</button>
+            </div>
+            <div class="pass-tracks">
+                <div class="track track-premium" id="premiumTrack">
+                    <div class="track-title"><span>💎 ПРЕМИУМ НАГРАДЫ</span><button id="activatePremiumBtn" class="activate-premium-btn">АКТИВИРОВАТЬ (169💎)</button></div>
+                    <div class="track-scroll" id="premiumScroll"></div>
+                </div>
+                <div class="track track-free">
+                    <div class="track-title"><span>🎁 БЕСПЛАТНЫЕ НАГРАДЫ</span></div>
+                    <div class="track-scroll" id="freeScroll"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="activationModal" class="activation-modal">
+        <div class="activation-container">
+            <button class="close-pass" onclick="closeActivationModal()">✖</button>
+            <h2>🔓 ПОЛУЧИТЬ BRAWL PASS</h2>
+            <div class="activation-options">
+                <button class="activation-btn" onclick="activatePremium(169)">💎 BRAWL PASS (169💎)</button>
+                <button class="activation-btn premium" onclick="activatePremiumWithLevels(249)">🔥 BRAWL PASS + 10 УРОВНЕЙ (249💎)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Окна боя -->
     <div id="battleModal" class="battle-modal"><div class="battle-container"><h2>🎮 ВЫБОР РЕЖИМА</h2><div class="mode-selector-battle" id="battleModeSelector"><div class="mode-btn" data-mode="crystal">💎 ЗАХВАТ КРИСТАЛЛОВ</div><div class="mode-btn" data-mode="brawlball">⚽ БРОУЛБОЛ</div><div class="mode-btn" data-mode="bounty">💰 НАГРАДА ЗА ПОЙМКУ</div><div class="mode-btn" data-mode="showdown">🥊 СТОЛКНОВЕНИЕ</div><div class="mode-btn" data-mode="heist">🏦 ОГРАБЛЕНИЕ</div></div><div class="game-count"><label>🎮 ИГР ЗА РАЗ: </label><input type="number" id="battleGamesCount" min="1" max="25" value="3"></div><button class="close-battle" onclick="closeBattleModal()">✖ ЗАКРЫТЬ</button></div></div>
     <div id="gameplayModal" class="gameplay-modal"><div class="gameplay-container"><h2 id="gameplayModeName">💎 ЗАХВАТ КРИСТАЛЛОВ</h2><div class="gameplay-timer" id="gameplayTimer">30</div><div id="gameplayBattles" class="gameplay-battles"></div></div></div>
     <div id="resultsModal" class="results-modal"><div class="results-container"><h2>🏆 ИТОГИ СЕССИИ</h2><div id="resultsContent"></div><button class="close-battle" onclick="closeResultsModal()">✖ ЗАКРЫТЬ</button></div></div>
@@ -439,8 +485,18 @@
         // Данные Бравл Пасса
         let passData = { premiumActive: false, currentLevel: 1, currentExp: 0, claimedFree: [], claimedPremium: [] };
         const passRewards = {
-            free: [{ level: 1, reward: "50💰", type: "coins", value: 50 }, { level: 2, reward: "🎁", type: "box", value: 1 }, { level: 3, reward: "100💰", type: "coins", value: 100 }, { level: 4, reward: "🎁✨", type: "box", value: 1 }, { level: 5, reward: "200💰", type: "coins", value: 200 }, { level: 6, reward: "⭐", type: "skin", value: "star" }, { level: 7, reward: "300💰", type: "coins", value: 300 }, { level: 8, reward: "🎁⭐", type: "box", value: 1 }, { level: 9, reward: "500💰", type: "coins", value: 500 }, { level: 10, reward: "👑", type: "brawler", value: "exclusive" }],
-            premium: [{ level: 1, reward: "100💰", type: "coins", value: 100 }, { level: 2, reward: "🎁✨", type: "box", value: 1 }, { level: 3, reward: "200💰", type: "coins", value: 200 }, { level: 4, reward: "🔥", type: "skin", value: "legendary" }, { level: 5, reward: "300💰", type: "coins", value: 300 }, { level: 6, reward: "🎁⭐", type: "box", value: 1 }, { level: 7, reward: "500💰", type: "coins", value: 500 }, { level: 8, reward: "💎", type: "gems", value: 50 }, { level: 9, reward: "1000💰", type: "coins", value: 1000 }, { level: 10, reward: "🏆", type: "title", value: "champion" }]
+            free: [
+                { level: 1, reward: "50💰", type: "coins", value: 50 }, { level: 2, reward: "🎁", type: "box", value: 1 }, { level: 3, reward: "100💰", type: "coins", value: 100 },
+                { level: 4, reward: "🎁✨", type: "box", value: 1 }, { level: 5, reward: "200💰", type: "coins", value: 200 }, { level: 6, reward: "⭐", type: "skin", value: "star" },
+                { level: 7, reward: "300💰", type: "coins", value: 300 }, { level: 8, reward: "🎁⭐", type: "box", value: 1 }, { level: 9, reward: "500💰", type: "coins", value: 500 },
+                { level: 10, reward: "👑", type: "brawler", value: "exclusive" }
+            ],
+            premium: [
+                { level: 1, reward: "100💰", type: "coins", value: 100 }, { level: 2, reward: "🎁✨", type: "box", value: 1 }, { level: 3, reward: "200💰", type: "coins", value: 200 },
+                { level: 4, reward: "🔥", type: "skin", value: "legendary" }, { level: 5, reward: "300💰", type: "coins", value: 300 }, { level: 6, reward: "🎁⭐", type: "box", value: 1 },
+                { level: 7, reward: "500💰", type: "coins", value: 500 }, { level: 8, reward: "💎", type: "gems", value: 50 }, { level: 9, reward: "1000💰", type: "coins", value: 1000 },
+                { level: 10, reward: "🏆", type: "title", value: "champion" }
+            ]
         };
         
         function initPassData() {
@@ -453,6 +509,8 @@
         function renderPass() {
             document.getElementById('passCurrentLevel').innerText = passData.currentLevel;
             document.getElementById('passProgressFill').style.width = `${(passData.currentExp / 100) * 100}%`;
+            
+            // Бесплатная дорожка
             const freeScroll = document.getElementById('freeScroll');
             if (freeScroll) {
                 freeScroll.innerHTML = '';
@@ -465,6 +523,8 @@
                     freeScroll.appendChild(div);
                 });
             }
+            
+            // Премиум дорожка (только если пасс активен)
             const premiumScroll = document.getElementById('premiumScroll');
             if (premiumScroll) {
                 if (passData.premiumActive) {
@@ -482,31 +542,65 @@
                     premiumScroll.innerHTML = '<div style="text-align:center; padding:20px;">💎 ПРЕМИУМ НЕ АКТИВИРОВАН 💎</div>';
                 }
             }
+            
+            // Кнопка активации пасса
             const activateBtn = document.getElementById('activatePremiumBtn');
             if (activateBtn) {
                 if (passData.premiumActive) activateBtn.style.display = 'none';
                 else { activateBtn.style.display = 'inline-block'; activateBtn.onclick = () => openActivationModal(); }
             }
+            
+            // Назначаем обработчики для кнопок ЗАБРАТЬ
             document.querySelectorAll('.claim-tier-btn').forEach(btn => {
                 btn.onclick = (e) => { e.stopPropagation(); claimPassReward(btn.getAttribute('data-track'), parseInt(btn.getAttribute('data-level'))); };
             });
         }
         
+        async function buyLevel() {
+            if (passData.currentLevel >= 10) { alert('Максимальный уровень достигнут!'); return; }
+            const gems = parseInt(document.getElementById('gemsDisplay').innerText) || 0;
+            if (gems < 50) { alert('Не хватает гемов! Нужно 50💎'); return; }
+            await fetch('/api/spend_gems', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, gems: 50 }) });
+            passData.currentExp = 0;
+            passData.currentLevel = Math.min(passData.currentLevel + 1, 10);
+            savePassData(); renderPass(); refreshProfileData();
+        }
+        
         function openActivationModal() { document.getElementById('activationModal').style.display = 'flex'; }
         function closeActivationModal() { document.getElementById('activationModal').style.display = 'none'; }
+        
         async function activatePremium(cost) {
             const gems = parseInt(document.getElementById('gemsDisplay').innerText) || 0;
             if (gems < cost) { alert(`Не хватает гемов! Нужно ${cost}💎`); return; }
             await fetch('/api/spend_gems', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, gems: cost }) });
             passData.premiumActive = true;
-            if (cost === 249) {
-                let newLevel = passData.currentLevel, newExp = passData.currentExp;
-                for (let i = 0; i < 10; i++) { newExp += 100; if (newExp >= 100) { newLevel += Math.floor(newExp / 100); newExp %= 100; } }
-                passData.currentLevel = Math.min(newLevel, 10);
-                passData.currentExp = newExp;
-            }
             savePassData(); renderPass(); refreshProfileData(); closeActivationModal();
+            // Включаем переливающийся никнейм
+            document.getElementById('miniNickname').classList.add('rainbow-text');
+            document.getElementById('profileNick').classList.add('rainbow-text');
         }
+        
+        async function activatePremiumWithLevels(cost) {
+            const gems = parseInt(document.getElementById('gemsDisplay').innerText) || 0;
+            if (gems < cost) { alert(`Не хватает гемов! Нужно ${cost}💎`); return; }
+            await fetch('/api/spend_gems', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, gems: cost }) });
+            passData.premiumActive = true;
+            let newLevel = passData.currentLevel;
+            let newExp = passData.currentExp;
+            for (let i = 0; i < 10; i++) {
+                newExp += 100;
+                if (newExp >= 100) {
+                    newLevel += Math.floor(newExp / 100);
+                    newExp %= 100;
+                }
+            }
+            passData.currentLevel = Math.min(newLevel, 10);
+            passData.currentExp = newExp;
+            savePassData(); renderPass(); refreshProfileData(); closeActivationModal();
+            document.getElementById('miniNickname').classList.add('rainbow-text');
+            document.getElementById('profileNick').classList.add('rainbow-text');
+        }
+        
         async function claimPassReward(track, level) {
             if (track === 'free' && passData.claimedFree.includes(level)) return;
             if (track === 'premium' && (!passData.premiumActive || passData.claimedPremium.includes(level))) return;
@@ -519,6 +613,7 @@
             else passData.claimedPremium.push(level);
             savePassData(); renderPass(); refreshProfileData();
         }
+        
         function savePassData() { localStorage.setItem('brawlPass_' + currentPlayerId, JSON.stringify(passData)); }
         async function addPassExperience(exp) {
             let newExp = (passData.currentExp || 0) + exp, newLevel = passData.currentLevel;
@@ -570,7 +665,19 @@
         async function showUserProfile(userId) { const res = await fetch('/api/player/' + userId); const data = await res.json(); if (!data.error) { document.getElementById('viewAvatar').innerHTML = data.avatar || '🎮'; document.getElementById('viewNickname').innerText = data.nickname; document.getElementById('viewTag').innerText = data.tag || '#----'; document.getElementById('viewCups').innerText = data.cups || 0; document.getElementById('viewBoxes').innerText = data.total_boxes || 0; document.getElementById('viewCoins').innerText = data.coins || 0; document.getElementById('viewTotalCups').innerText = data.cups || 0; document.getElementById('viewRecordCups').innerText = data.record_cups || data.cups || 0; document.getElementById('viewProfileModal').style.display = 'flex'; } }
         function closeViewProfileModal() { document.getElementById('viewProfileModal').style.display = 'none'; }
         
-        const pathData = [ { cups: 250, reward: "50💰", label: "50 Монет" }, { cups: 500, reward: "🎁", label: "Обычный ящик" }, { cups: 1000, reward: "100💰", label: "100 Монет" }, { cups: 1500, reward: "🎁", label: "Обычный ящик" }, { cups: 2000, reward: "🎁✨", label: "Редкий ящик" }, { cups: 2500, reward: "250💰", label: "250 Монет" }, { cups: 3000, reward: "🎁", label: "Обычный ящик" }, { cups: 4000, reward: "🎁✨", label: "Редкий ящик" }, { cups: 5000, reward: "🔥", label: "Легендарный скин" }, { cups: 6000, reward: "500💰", label: "500 Монет" }, { cups: 7000, reward: "🎁✨", label: "Редкий ящик" }, { cups: 8000, reward: "🎁⭐", label: "Мега-ящик" }, { cups: 10000, reward: "👑", label: "Эксклюзивный боец" }, { cups: 12000, reward: "1000💰", label: "1000 Монет" }, { cups: 14000, reward: "🎁✨", label: "Редкий ящик" }, { cups: 16000, reward: "🎁⭐", label: "Мега-ящик" }, { cups: 18000, reward: "2000💰", label: "2000 Монет" }, { cups: 20000, reward: "🏆", label: "Титул: Искатель" }, { cups: 25000, reward: "💎", label: "Алмазный скин" }, { cups: 30000, reward: "5000💰", label: "5000 Монет" }, { cups: 35000, reward: "🎁⭐", label: "Мега-ящик" }, { cups: 40000, reward: "👑", label: "Легендарный боец" }, { cups: 45000, reward: "10000💰", label: "10000 Монет" }, { cups: 50000, reward: "🔥👑", label: "Мифический скин" }, { cups: 60000, reward: "15000💰", label: "15000 Монет" }, { cups: 70000, reward: "🎁⭐⭐", label: "Мега-ящик x2" }, { cups: 80000, reward: "🏆🏆", label: "Титул: Легенда" }, { cups: 90000, reward: "25000💰", label: "25000 Монет" }, { cups: 100000, reward: "🏆👑", label: "ЗОЛОТОЙ ТРОФЕЙ" }, { cups: 125000, reward: "50000💰", label: "50000 Монет" }, { cups: 150000, reward: "⭐🏆", label: "Королевский скин" }, { cups: 175000, reward: "100000💰", label: "100000 Монет" }, { cups: 200000, reward: "🏆🏆🏆", label: "ТРОФЕЙ АБСОЛЮТА" } ];
+        const pathData = [
+            { cups: 250, reward: "50💰", label: "50 Монет" }, { cups: 500, reward: "🎁", label: "Обычный ящик" }, { cups: 1000, reward: "100💰", label: "100 Монет" },
+            { cups: 1500, reward: "🎁", label: "Обычный ящик" }, { cups: 2000, reward: "🎁✨", label: "Редкий ящик" }, { cups: 2500, reward: "250💰", label: "250 Монет" },
+            { cups: 3000, reward: "🎁", label: "Обычный ящик" }, { cups: 4000, reward: "🎁✨", label: "Редкий ящик" }, { cups: 5000, reward: "🔥", label: "Легендарный скин" },
+            { cups: 6000, reward: "500💰", label: "500 Монет" }, { cups: 7000, reward: "🎁✨", label: "Редкий ящик" }, { cups: 8000, reward: "🎁⭐", label: "Мега-ящик" },
+            { cups: 10000, reward: "👑", label: "Эксклюзивный боец" }, { cups: 12000, reward: "1000💰", label: "1000 Монет" }, { cups: 14000, reward: "🎁✨", label: "Редкий ящик" },
+            { cups: 16000, reward: "🎁⭐", label: "Мега-ящик" }, { cups: 18000, reward: "2000💰", label: "2000 Монет" }, { cups: 20000, reward: "🏆", label: "Титул: Искатель" },
+            { cups: 25000, reward: "💎", label: "Алмазный скин" }, { cups: 30000, reward: "5000💰", label: "5000 Монет" }, { cups: 35000, reward: "🎁⭐", label: "Мега-ящик" },
+            { cups: 40000, reward: "👑", label: "Легендарный боец" }, { cups: 45000, reward: "10000💰", label: "10000 Монет" }, { cups: 50000, reward: "🔥👑", label: "Мифический скин" },
+            { cups: 60000, reward: "15000💰", label: "15000 Монет" }, { cups: 70000, reward: "🎁⭐⭐", label: "Мега-ящик x2" }, { cups: 80000, reward: "🏆🏆", label: "Титул: Легенда" },
+            { cups: 90000, reward: "25000💰", label: "25000 Монет" }, { cups: 100000, reward: "🏆👑", label: "ЗОЛОТОЙ ТРОФЕЙ" }, { cups: 125000, reward: "50000💰", label: "50000 Монет" },
+            { cups: 150000, reward: "⭐🏆", label: "Королевский скин" }, { cups: 175000, reward: "100000💰", label: "100000 Монет" }, { cups: 200000, reward: "🏆🏆🏆", label: "ТРОФЕЙ АБСОЛЮТА" }
+        ];
         let claimedStatus = new Array(pathData.length).fill(false);
         let currentCups = 0;
         
@@ -637,7 +744,7 @@
         
         const DEV_AVATAR_URL = "https://yt3.googleusercontent.com/wEnonoxntKdkIuHZbNouYlz6YoCchSbx7tpBRaVS6V08XzJYkvNZaG34RwZV7khnoF6hqI-kGw=s900-c-k-c0x00ffffff-no-rj";
         async function changeAvatar(avatarValue, isUrl = false) { await fetch('/api/change_avatar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, avatar: isUrl ? DEV_AVATAR_URL : avatarValue }) }); await refreshProfileData(); closeAvatarPicker(); }
-        async function changeNickname() { const newNick = document.getElementById('newNicknameInput').value.trim(); if (!newNick) return alert("Введи никнейм"); const res = await fetch('/api/change_nickname', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, newNickname: newNick, color: null }) }); if (res.data.success) { await refreshProfileData(); closeNicknameEditor(); } else alert(res.data.message || "Ошибка"); }
+        async function changeNickname() { const newNick = document.getElementById('newNicknameInput').value.trim(); if (!newNick) return alert("Введи никнейм"); const res = await fetch('/api/change_nickname', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, newNickname: newNick, color: null }) }); const data = await res.json(); if (data.success) { await refreshProfileData(); closeNicknameEditor(); } else alert(data.message || "Ошибка"); }
         async function changeColorOnly(color) { await fetch('/api/change_nickname', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, color: color }) }); await refreshProfileData(); }
         function openProfileModal() { refreshProfileData(); document.getElementById('profileModal').style.display = 'flex'; }
         function closeProfileModal() { document.getElementById('profileModal').style.display = 'none'; }
