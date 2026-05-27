@@ -333,7 +333,8 @@
         .reward-tier.claimed { opacity: 0.6; }
         .tier-level { font-size: 16px; font-weight: bold; color: #aaa; }
         .tier-reward { font-size: 28px; margin: 10px 0; }
-        .claim-tier-btn { background: #e94560; border: none; padding: 5px 12px; border-radius: 30px; font-size: 11px; cursor: pointer; margin-top: 8px; color: white; }
+        .claim-tier-btn { background: #e94560; border: none; padding: 5px 12px; border-radius: 30px; font-size: 11px; cursor: pointer; margin-top: 8px; color: white; transition: 0.2s; }
+        .claim-tier-btn:active { transform: scale(0.95); }
         .activate-premium-btn, .buy-level-btn { background: linear-gradient(135deg, #f9a826, #e94560); border: none; padding: 8px 20px; border-radius: 50px; font-size: 14px; cursor: pointer; font-weight: bold; }
         .activation-modal {
             display: none;
@@ -516,9 +517,10 @@
                 passRewards.free.forEach((reward, idx) => {
                     const level = idx + 1;
                     const isAvailable = level <= passData.currentLevel && !passData.claimedFree.includes(level);
+                    const isClaimed = passData.claimedFree.includes(level);
                     const div = document.createElement('div');
-                    div.className = `reward-tier ${isAvailable ? 'available' : (passData.claimedFree.includes(level) ? 'claimed' : '')}`;
-                    div.innerHTML = `<div class="tier-level">УРОВЕНЬ ${level}</div><div class="tier-reward">${reward.reward}</div>${isAvailable ? '<button class="claim-tier-btn" data-track="free" data-level="'+level+'">ЗАБРАТЬ</button>' : (passData.claimedFree.includes(level) ? '✅' : '🔒')}`;
+                    div.className = `reward-tier ${isAvailable ? 'available' : (isClaimed ? 'claimed' : '')}`;
+                    div.innerHTML = `<div class="tier-level">УРОВЕНЬ ${level}</div><div class="tier-reward">${reward.reward}</div>${isAvailable ? `<button class="claim-tier-btn" data-track="free" data-level="${level}">ЗАБРАТЬ</button>` : (isClaimed ? '✅' : '🔒')}`;
                     freeScroll.appendChild(div);
                 });
             }
@@ -532,9 +534,10 @@
                     passRewards.premium.forEach((reward, idx) => {
                         const level = idx + 1;
                         const isAvailable = level <= passData.currentLevel && !passData.claimedPremium.includes(level);
+                        const isClaimed = passData.claimedPremium.includes(level);
                         const div = document.createElement('div');
-                        div.className = `reward-tier ${isAvailable ? 'available' : (passData.claimedPremium.includes(level) ? 'claimed' : '')}`;
-                        div.innerHTML = `<div class="tier-level">УРОВЕНЬ ${level}</div><div class="tier-reward">${reward.reward}</div>${isAvailable ? '<button class="claim-tier-btn" data-track="premium" data-level="'+level+'">ЗАБРАТЬ</button>' : (passData.claimedPremium.includes(level) ? '✅' : '🔒')}`;
+                        div.className = `reward-tier ${isAvailable ? 'available' : (isClaimed ? 'claimed' : '')}`;
+                        div.innerHTML = `<div class="tier-level">УРОВЕНЬ ${level}</div><div class="tier-reward">${reward.reward}</div>${isAvailable ? `<button class="claim-tier-btn" data-track="premium" data-level="${level}">ЗАБРАТЬ</button>` : (isClaimed ? '✅' : '🔒')}`;
                         premiumScroll.appendChild(div);
                     });
                 } else {
@@ -549,9 +552,14 @@
                 else { activateBtn.style.display = 'inline-block'; activateBtn.onclick = () => openActivationModal(); }
             }
             
-            // Назначаем обработчики для кнопок ЗАБРАТЬ
+            // Назначаем обработчики для кнопок ЗАБРАТЬ (сразу, без задержки)
             document.querySelectorAll('.claim-tier-btn').forEach(btn => {
-                btn.onclick = (e) => { e.stopPropagation(); claimPassReward(btn.getAttribute('data-track'), parseInt(btn.getAttribute('data-level'))); };
+                btn.onclick = async (e) => {
+                    e.stopPropagation();
+                    const track = btn.getAttribute('data-track');
+                    const level = parseInt(btn.getAttribute('data-level'));
+                    await claimPassReward(track, level);
+                };
             });
         }
         
@@ -562,7 +570,9 @@
             await fetch('/api/spend_gems', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, gems: 50 }) });
             passData.currentExp = 0;
             passData.currentLevel = Math.min(passData.currentLevel + 1, 10);
-            savePassData(); renderPass(); refreshProfileData();
+            savePassData(); 
+            renderPass(); 
+            refreshProfileData();
         }
         
         function openActivationModal() { document.getElementById('activationModal').style.display = 'flex'; }
@@ -573,8 +583,10 @@
             if (gems < cost) { alert(`Не хватает гемов! Нужно ${cost}💎`); return; }
             await fetch('/api/spend_gems', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, gems: cost }) });
             passData.premiumActive = true;
-            savePassData(); renderPass(); refreshProfileData(); closeActivationModal();
-            // Включаем переливающийся никнейм
+            savePassData(); 
+            renderPass(); 
+            refreshProfileData(); 
+            closeActivationModal();
             document.getElementById('miniNickname').classList.add('rainbow-text');
             document.getElementById('profileNick').classList.add('rainbow-text');
         }
@@ -595,7 +607,10 @@
             }
             passData.currentLevel = Math.min(newLevel, 10);
             passData.currentExp = newExp;
-            savePassData(); renderPass(); refreshProfileData(); closeActivationModal();
+            savePassData(); 
+            renderPass(); 
+            refreshProfileData(); 
+            closeActivationModal();
             document.getElementById('miniNickname').classList.add('rainbow-text');
             document.getElementById('profileNick').classList.add('rainbow-text');
         }
@@ -603,14 +618,29 @@
         async function claimPassReward(track, level) {
             if (track === 'free' && passData.claimedFree.includes(level)) return;
             if (track === 'premium' && (!passData.premiumActive || passData.claimedPremium.includes(level))) return;
+            
             const rewards = track === 'free' ? passRewards.free : passRewards.premium;
             const reward = rewards[level-1];
-            if (reward.type === 'coins') await fetch('/api/add_coins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, coins: reward.value }) });
-            else if (reward.type === 'gems') await fetch('/api/add_gems', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, gems: reward.value }) });
-            else if (reward.type === 'box') await fetch('/api/add_box', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId }) });
-            if (track === 'free') passData.claimedFree.push(level);
-            else passData.claimedPremium.push(level);
-            savePassData(); renderPass(); refreshProfileData();
+            
+            // Начисляем награду
+            if (reward.type === 'coins') {
+                await fetch('/api/add_coins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, coins: reward.value }) });
+            } else if (reward.type === 'gems') {
+                await fetch('/api/add_gems', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, gems: reward.value }) });
+            } else if (reward.type === 'box') {
+                await fetch('/api/add_box', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId }) });
+            }
+            
+            if (track === 'free') {
+                passData.claimedFree.push(level);
+            } else {
+                passData.claimedPremium.push(level);
+            }
+            savePassData();
+            
+            // Немедленно обновляем интерфейс, чтобы кнопка заменилась на галочку
+            renderPass();
+            refreshProfileData();
         }
         
         function savePassData() { localStorage.setItem('brawlPass_' + currentPlayerId, JSON.stringify(passData)); }
