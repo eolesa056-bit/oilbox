@@ -19,7 +19,7 @@
             padding: 20px;
         }
 
-        /* Верхняя панель: монеты и гемы слева, аватарка и путь к славе по центру, гамбургер справа */
+        /* Верхняя панель */
         .top-bar {
             position: fixed;
             top: 20px;
@@ -169,7 +169,7 @@
             box-shadow: 0 0 30px rgba(0,255,136,0.8);
         }
 
-        /* Модальное окно Бравл Пасса */
+        /* Модальное окно Бравл Пасса (две дорожки) */
         .pass-modal {
             display: none;
             position: fixed;
@@ -208,10 +208,32 @@
             color: transparent;
         }
 
+        .pass-level {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .pass-progress {
+            background: #1e293b;
+            border-radius: 20px;
+            height: 15px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .pass-progress-fill {
+            background: linear-gradient(90deg, #f9a826, #e94560);
+            width: 0%;
+            height: 100%;
+            border-radius: 20px;
+        }
+
         .pass-tracks {
             display: flex;
             flex-direction: column;
             gap: 30px;
+            margin-top: 20px;
         }
 
         .track {
@@ -294,6 +316,57 @@
             font-weight: bold;
         }
 
+        /* Окно активации (выбор способа) */
+        .activation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 500;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .activation-container {
+            background: linear-gradient(145deg, #0f172a, #020617);
+            width: 90%;
+            max-width: 500px;
+            border-radius: 60px;
+            border: 2px solid #e94560;
+            padding: 35px;
+            text-align: center;
+        }
+
+        .activation-container h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .activation-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .activation-btn {
+            background: linear-gradient(135deg, #e94560, #b91c3c);
+            border: none;
+            padding: 15px;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+        }
+
+        .activation-btn.premium {
+            background: linear-gradient(135deg, #f9a826, #e94560);
+        }
+
         .close-pass {
             position: absolute;
             top: 20px;
@@ -307,7 +380,7 @@
             cursor: pointer;
         }
 
-        /* Остальные стили (гамбургер-меню, профиль, лидеры и т.д.) — сокращённо, без изменений */
+        /* Остальные стили (гамбургер-меню, профиль и т.д.) — сокращённо */
         .menu-panel {
             display: none;
             position: fixed;
@@ -452,6 +525,12 @@
             <div class="pass-header">
                 <h2>🏆 BRAWL PASS 🏆</h2>
             </div>
+            <div class="pass-level">
+                УРОВЕНЬ: <span id="passCurrentLevel">1</span> / 10
+            </div>
+            <div class="pass-progress">
+                <div class="pass-progress-fill" id="passProgressFill" style="width: 0%;"></div>
+            </div>
             <div class="pass-tracks">
                 <!-- Премиум дорожка -->
                 <div class="track track-premium" id="premiumTrack">
@@ -468,6 +547,18 @@
                     </div>
                     <div class="track-scroll" id="freeScroll"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОКНО АКТИВАЦИИ (выбор способа) -->
+    <div id="activationModal" class="activation-modal">
+        <div class="activation-container">
+            <button class="close-pass" onclick="closeActivationModal()">✖</button>
+            <h2>🔓 ПОЛУЧИТЬ BRAWL PASS</h2>
+            <div class="activation-options">
+                <button class="activation-btn" onclick="activatePremium(169)">💎 BRAWL PASS (169💎)</button>
+                <button class="activation-btn premium" onclick="activatePremiumWithLevels(249)">🔥 BRAWL PASS + 10 УРОВНЕЙ (249💎)</button>
             </div>
         </div>
     </div>
@@ -502,6 +593,7 @@
         let passData = {
             premiumActive: false,
             currentLevel: 1,
+            currentExp: 0,
             claimedFree: [],
             claimedPremium: []
         };
@@ -538,12 +630,18 @@
             if (saved) {
                 passData = JSON.parse(saved);
             } else {
-                passData = { premiumActive: false, currentLevel: 1, claimedFree: [], claimedPremium: [] };
+                passData = { premiumActive: false, currentLevel: 1, currentExp: 0, claimedFree: [], claimedPremium: [] };
             }
             renderPass();
         }
         
         function renderPass() {
+            // Обновляем уровень и прогресс
+            document.getElementById('passCurrentLevel').innerText = passData.currentLevel;
+            const expNeeded = 100;
+            const progressPercent = (passData.currentExp / expNeeded) * 100;
+            document.getElementById('passProgressFill').style.width = `${progressPercent}%`;
+            
             // Бесплатная дорожка
             const freeScroll = document.getElementById('freeScroll');
             if (freeScroll) {
@@ -563,7 +661,7 @@
                 });
             }
             
-            // Премиум дорожка (видна только если активна)
+            // Премиум дорожка
             const premiumTrack = document.getElementById('premiumTrack');
             const premiumScroll = document.getElementById('premiumScroll');
             if (premiumScroll) {
@@ -589,14 +687,14 @@
                 }
             }
             
-            // Кнопка активации премиум
+            // Кнопка активации: показывает окно выбора
             const activateBtn = document.getElementById('activatePremiumBtn');
             if (activateBtn) {
                 if (passData.premiumActive) {
                     activateBtn.style.display = 'none';
                 } else {
                     activateBtn.style.display = 'inline-block';
-                    activateBtn.onclick = () => activatePremium();
+                    activateBtn.onclick = () => openActivationModal();
                 }
             }
             
@@ -611,20 +709,41 @@
             });
         }
         
-        async function activatePremium() {
-            if (passData.premiumActive) return;
-            // Проверяем, хватает ли гемов (169)
+        function openActivationModal() {
+            document.getElementById('activationModal').style.display = 'flex';
+        }
+        
+        function closeActivationModal() {
+            document.getElementById('activationModal').style.display = 'none';
+        }
+        
+        async function activatePremium(cost) {
             const gems = parseInt(document.getElementById('gemsDisplay').innerText) || 0;
-            if (gems < 169) {
-                alert('Не хватает гемов! Нужно 169💎');
+            if (gems < cost) {
+                alert(`Не хватает гемов! Нужно ${cost}💎`);
                 return;
             }
             // Списываем гемы
-            await fetch('/api/spend_gems', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, gems: 169 }) });
+            await fetch('/api/spend_gems', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, gems: cost }) });
             passData.premiumActive = true;
+            if (cost === 249) {
+                // Добавляем 10 уровней
+                let newLevel = passData.currentLevel;
+                let newExp = passData.currentExp;
+                for (let i = 0; i < 10; i++) {
+                    newExp += 100;
+                    if (newExp >= 100) {
+                        newLevel += Math.floor(newExp / 100);
+                        newExp = newExp % 100;
+                    }
+                }
+                passData.currentLevel = Math.min(newLevel, 10);
+                passData.currentExp = newExp;
+            }
             savePassData();
             renderPass();
             refreshProfileData();
+            closeActivationModal();
         }
         
         async function claimPassReward(track, level) {
@@ -642,7 +761,6 @@
             } else if (reward.type === 'box') {
                 await fetch('/api/add_box', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId }) });
             }
-            // Для скинов и бойцов — заглушка
             
             if (track === 'free') {
                 passData.claimedFree.push(level);
@@ -658,27 +776,21 @@
             localStorage.setItem('brawlPass_' + currentPlayerId, JSON.stringify(passData));
         }
         
-        // Добавление опыта для повышения уровня пасса (вызывается после боя)
         async function addPassExperience(exp) {
             if (!currentPlayerId) return;
-            // За каждый бой даём 10 опыта, за победу +5
+            let newExp = (passData.currentExp || 0) + exp;
             let newLevel = passData.currentLevel;
-            // Простая логика: 100 опыта на уровень
-            let currentExp = passData.currentExp || 0;
-            currentExp += exp;
-            while (currentExp >= 100 && newLevel < 10) {
-                currentExp -= 100;
+            while (newExp >= 100 && newLevel < 10) {
+                newExp -= 100;
                 newLevel++;
             }
+            passData.currentExp = newExp;
             passData.currentLevel = newLevel;
-            passData.currentExp = currentExp;
             savePassData();
             renderPass();
         }
 
-        // Остальной код (лидеры, профиль, бои) без изменений, только добавим вызов addPassExperience в конец боя
-        // (см. функцию finishSimulation)
-        
+        // Остальной код (лидеры, профиль, бои) без изменений
         const DEV_AVATAR_URL = "https://yt3.googleusercontent.com/wEnonoxntKdkIuHZbNouYlz6YoCchSbx7tpBRaVS6V08XzJYkvNZaG34RwZV7khnoF6hqI-kGw=s900-c-k-c0x00ffffff-no-rj";
         
         const gameModes = {
