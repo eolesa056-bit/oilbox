@@ -80,7 +80,6 @@
         }
         .menu-panel button:hover { background: #e94560; }
 
-        /* Левое вертикальное меню */
         .left-menu {
             position: fixed;
             left: 20px;
@@ -107,7 +106,6 @@
         }
         .left-menu-btn:hover { background: #e94560; transform: scale(1.05); }
 
-        /* Центральный боец */
         .center-brawler {
             position: fixed;
             top: 50%;
@@ -132,9 +130,7 @@
             filter: drop-shadow(0 0 15px #e94560);
             transition: 0.2s;
         }
-        .brawler-model:hover { transform: scale(1.05); }
 
-        /* Модальные окна */
         .modal {
             display: none;
             position: fixed;
@@ -158,7 +154,6 @@
             max-height: 85vh;
             overflow-y: auto;
         }
-        .modal-content.admin { max-width: 900px; }
         .close-modal {
             position: absolute;
             top: 20px;
@@ -172,7 +167,7 @@
             cursor: pointer;
         }
 
-        /* Таблицы в админке */
+        /* Админ-таблица внутри настроек */
         .admin-table {
             width: 100%;
             border-collapse: collapse;
@@ -196,15 +191,8 @@
             margin: 2px;
             font-size: 12px;
         }
-        .admin-table button.green { background: #00ff88; color: black; }
-        .admin-input { padding: 8px; border-radius: 30px; border: 1px solid #e94560; background: #0f172a; color: white; margin: 5px; width: 200px; }
 
-        .shop-scroll {
-            display: flex;
-            overflow-x: auto;
-            gap: 20px;
-            padding: 20px 10px;
-        }
+        .shop-scroll { display: flex; overflow-x: auto; gap: 20px; padding: 20px 10px; }
         .shop-item {
             flex: 0 0 180px;
             background: linear-gradient(145deg, #1e293b, #0f172a);
@@ -213,15 +201,7 @@
             text-align: center;
             border: 1px solid #2a2a5a;
         }
-        .shop-item button {
-            background: #e94560;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 50px;
-            color: white;
-            cursor: pointer;
-            margin-top: 10px;
-        }
+        .shop-item button { background: #e94560; border: none; padding: 8px 15px; border-radius: 50px; color: white; cursor: pointer; margin-top: 10px; }
 
         .brawlers-grid {
             display: grid;
@@ -241,11 +221,7 @@
         .brawler-card.selected { border: 2px solid #00ff88; box-shadow: 0 0 15px #00ff88; }
 
         .news-list { display: flex; flex-direction: column; gap: 15px; }
-        .news-item {
-            background: rgba(255,255,255,0.05);
-            border-radius: 30px;
-            padding: 20px;
-        }
+        .news-item { background: rgba(255,255,255,0.05); border-radius: 30px; padding: 20px; }
         .news-date { font-size: 12px; color: #aaa; margin-bottom: 5px; }
         .news-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
         .news-desc { font-size: 14px; color: #ccc; }
@@ -306,11 +282,10 @@
         .avatar-selector, .nickname-container, .color-container { background: #0f172a; padding: 35px; border-radius: 60px; border: 1px solid #e94560; max-width: 600px; width: 90%; text-align: center; }
         .avatar-selector { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
         .avatar-option { width: 85px; height: 85px; background: #1a1a3e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 55px; cursor: pointer; border: 2px solid transparent; }
-        .avatar-option:hover { border-color: #e94560; transform: scale(1.05); }
         .color-options { display: flex; gap: 20px; justify-content: center; margin: 30px 0; flex-wrap: wrap; }
         .color-circle { width: 55px; height: 55px; border-radius: 50%; cursor: pointer; border: 3px solid #fff; }
         
-        /* Окна Бравл Пасса и боя */
+        /* Окна Бравл Пасса и боя (заглушки) */
         .pass-modal, .battle-modal, .gameplay-modal, .results-modal, .activation-modal {
             display: none;
             position: fixed;
@@ -332,17 +307,11 @@
             padding: 35px;
             text-align: center;
         }
-        .pass-container { max-width: 900px; }
         .mode-selector-battle { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 20px 0; }
         .mode-btn { background: rgba(233,69,96,0.2); border: 1px solid #e94560; padding: 10px 15px; border-radius: 50px; color: white; cursor: pointer; font-size: 14px; }
         .mode-btn.active { background: #e94560; }
         .gameplay-timer { font-size: 64px; font-weight: bold; color: #00ff88; margin: 20px 0; }
         .battle-result-line { padding: 8px; margin: 5px 0; background: rgba(255,255,255,0.05); border-radius: 20px; }
-        .track-scroll { display: flex; overflow-x: auto; gap: 15px; padding: 10px 5px; }
-        .reward-tier { flex: 0 0 110px; background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 30px; padding: 15px; text-align: center; border: 1px solid #2a2a5a; }
-        .claim-tier-btn { background: #e94560; border: none; padding: 5px 12px; border-radius: 30px; font-size: 11px; cursor: pointer; margin-top: 8px; color: white; }
-        .activate-premium-btn, .buy-level-btn { background: linear-gradient(135deg, #f9a826, #e94560); border: none; padding: 8px 20px; border-radius: 50px; font-size: 14px; cursor: pointer; font-weight: bold; }
-        .close-pass { position: absolute; top: 20px; right: 25px; background: #e94560; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; cursor: pointer; }
         .brawl-pass-btn {
             position: fixed;
             bottom: 30px;
@@ -395,17 +364,16 @@
         </div>
     </div>
 
-    <!-- ГАМБУРГЕР-МЕНЮ -->
+    <!-- ГАМБУРГЕР-МЕНЮ (админ-пункт в НАСТРОЙКАХ) -->
     <div id="menuPanel" class="menu-panel">
         <button onclick="openModal('settings')">⚙️ НАСТРОЙКИ</button>
         <button onclick="openModal('history')">📜 ИСТОРИЯ БОЕВ</button>
         <button onclick="openModal('leaders')">🏆 СПИСКИ ЛИДЕРОВ</button>
         <button onclick="openModal('inbox')">📥 ВХОДЯЩИЕ</button>
         <button onclick="openModal('link')">🔗 ПРИВЯЗКА АККАУНТА</button>
-        <button id="adminMenuBtn" style="display:none;" onclick="openAdminPanel()">👑 АДМИН-ПАНЕЛЬ</button>
     </div>
 
-    <!-- ЛЕВОЕ ВЕРТИКАЛЬНОЕ МЕНЮ -->
+    <!-- ЛЕВОЕ МЕНЮ -->
     <div class="left-menu">
         <button class="left-menu-btn" onclick="openShopModal()">🛒 МАГАЗИН</button>
         <button class="left-menu-btn" onclick="openBrawlersModal()">🤖 БОЙЦЫ</button>
@@ -418,51 +386,31 @@
         <div class="brawler-model" id="brawlerModel">🎮</div>
     </div>
 
-    <!-- МАГАЗИН -->
-    <div id="shopModal" class="modal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModalById('shopModal')">✖</button>
-            <h2 style="text-align:center; margin-bottom:20px;">🛒 МАГАЗИН</h2>
-            <div class="shop-scroll" id="shopScroll"></div>
-        </div>
-    </div>
-
-    <!-- БОЙЦЫ -->
-    <div id="brawlersModal" class="modal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModalById('brawlersModal')">✖</button>
-            <h2 style="text-align:center; margin-bottom:20px;">🤖 ВЫБЕРИ БОЙЦА</h2>
-            <div id="brawlersList" class="brawlers-grid"></div>
-        </div>
-    </div>
-
-    <!-- НОВОСТИ -->
-    <div id="newsModal" class="modal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModalById('newsModal')">✖</button>
-            <h2 style="text-align:center; margin-bottom:20px;">📰 НОВОСТИ</h2>
-            <div id="newsList" class="news-list"></div>
-        </div>
-    </div>
-
-    <!-- АДМИН-ПАНЕЛЬ -->
-    <div id="adminModal" class="modal">
-        <div class="modal-content admin">
-            <button class="close-modal" onclick="closeModalById('adminModal')">✖</button>
-            <h2 style="text-align:center; margin-bottom:20px;">👑 АДМИН-ПАНЕЛЬ</h2>
-            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
-                <button onclick="loadAdminPlayers()">👥 ИГРОКИ</button>
-                <button onclick="loadAdminPromocodes()">🎁 ПРОМОКОДЫ</button>
-                <button onclick="loadAdminEvents()">🎉 ИВЕНТЫ</button>
-                <button onclick="loadAdminReports()">📋 РЕПОРТЫ</button>
-                <button onclick="loadAdminStats()">📊 СТАТИСТИКА</button>
+    <!-- ОКНО НАСТРОЕК (С АДМИН-ПАНЕЛЬЮ) -->
+    <div id="settingsModal" class="modal">
+        <div class="settings-container">
+            <button class="close-modal" onclick="closeModalById('settingsModal')">✖</button>
+            <h2 style="text-align:center; margin-bottom:20px;">⚙️ НАСТРОЙКИ</h2>
+            <div class="settings-row">
+                <span class="settings-label">🌐 ЯЗЫК</span>
+                <select id="languageSelect" class="lang-select">
+                    <option value="ru">Русский</option>
+                    <option value="en">English</option>
+                </select>
             </div>
-            <div id="adminContent"></div>
+            <!-- АДМИН-ПАНЕЛЬ (видна только админу) -->
+            <div id="adminPanel" style="display:none; margin-top: 20px;">
+                <h3 style="color:#e94560; text-align:center;">👑 АДМИН-ПАНЕЛЬ</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin: 15px 0;">
+                    <button onclick="loadAdminPlayers()" style="background:#e94560;">👥 ИГРОКИ</button>
+                    <button onclick="loadAdminStats()" style="background:#e94560;">📊 СТАТИСТИКА</button>
+                </div>
+                <div id="adminContent"></div>
+            </div>
         </div>
     </div>
 
     <!-- Остальные окна -->
-    <div id="settingsModal" class="modal"><div class="settings-container"><button class="close-modal" onclick="closeModalById('settingsModal')">✖</button><h2>⚙️ НАСТРОЙКИ</h2><div class="settings-row"><span class="settings-label">🌐 ЯЗЫК</span><select id="languageSelect" class="lang-select"><option value="ru">Русский</option><option value="en">English</option></select></div></div></div>
     <div id="historyModal" class="modal"><div class="history-container"><button class="close-modal" onclick="closeModalById('historyModal')">✖</button><h2>📜 ИСТОРИЯ БОЕВ</h2><div id="historyList" class="history-list">Нет боёв</div></div></div>
     <div id="leadersModal" class="modal"><div class="leaders-container"><button class="close-modal" onclick="closeModalById('leadersModal')">✖</button><h2>🏆 СПИСКИ ЛИДЕРОВ</h2><div class="leaders-tabs"><button class="leaders-tab active" onclick="switchLeaderTab('cups')">🏆 ПО КУБКАМ</button><button class="leaders-tab" onclick="switchLeaderTab('brawlers')">🤖 ПО БОЙЦАМ</button></div><div id="leadersList" class="leaders-list">Загрузка...</div></div></div>
     <div id="inboxModal" class="modal"><div class="profile-container"><button class="close-modal" onclick="closeModalById('inboxModal')">✖</button><h2>📥 ВХОДЯЩИЕ</h2><p>Сообщения, подарки, приглашения</p></div></div>
@@ -496,13 +444,6 @@
         let ownedBrawlers = [];
         let selectedBrawler = null;
         
-        // Данные Бравл Пасса
-        let passData = { premiumActive: false, currentLevel: 1, currentExp: 0, claimedFree: [], claimedPremium: [] };
-        const passRewards = {
-            free: [ /* ... */ ],
-            premium: [ /* ... */ ]
-        };
-        
         // Товары магазина
         const shopItems = [
             { name: "Обычный ящик", price: 50, type: "box", value: "common", icon: "🎁" },
@@ -535,13 +476,12 @@
             { date: "25.05.2026", title: "👑 Админ-панель", desc: "Управление игроками и банами" }
         ];
         
-        // ========== АДМИН-ПАНЕЛЬ ==========
+        // ========== АДМИН-ПАНЕЛЬ (МОМЕНТАЛЬНЫЙ БАН) ==========
         async function loadAdminPlayers() {
             const res = await fetch('/api/users');
             const users = await res.json();
-            let html = `<h3>👥 УПРАВЛЕНИЕ ИГРОКАМИ</h3>
-                        <table class="admin-table">
-                            <thead><tr><th>ID</th><th>Ник</th><th>Кубки</th><th>Монеты</th><th>Гемы</th><th>Бан</th><th>Действия</th></table></thead>
+            let html = `<div style="overflow-x:auto;"><table class="admin-table">
+                            <thead><tr><th>ID</th><th>Ник</th><th>Кубки</th><th>Монеты</th><th>Гемы</th><th>Бан</th><th>Действия</th></tr></thead>
                             <tbody>`;
             for (const u of users) {
                 html += `<tr>
@@ -552,14 +492,13 @@
                             <td>${u.gems || 0}</td>
                             <td>${u.is_banned ? '⛔ Да' : '✅ Нет'}</td>
                             <td>
-                                <button onclick="adminBanUser(${u.id})">🔨 Бан</button>
-                                <button onclick="adminUnbanUser(${u.id})">✅ Разбан</button>
-                                <button onclick="adminAddCoins(${u.id})">💰 +100 монет</button>
-                                <button onclick="adminAddGems(${u.id})">💎 +10 гемов</button>
+                                ${!u.is_banned ? `<button onclick="adminBanUser(${u.id})">🔨 БАН</button>` : `<button onclick="adminUnbanUser(${u.id})">✅ РАЗБАН</button>`}
+                                <button onclick="adminAddCoins(${u.id})">💰 +100</button>
+                                <button onclick="adminAddGems(${u.id})">💎 +10</button>
                             </td>
-                         </tr>`;
+                        </tr>`;
             }
-            html += `</tbody></table>`;
+            html += `</tbody></table></div>`;
             document.getElementById('adminContent').innerHTML = html;
         }
         
@@ -568,11 +507,13 @@
             if (!reason) return;
             await fetch('/api/ban', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, reason, hours: 0 }) });
             loadAdminPlayers();
+            alert('Игрок забанен! Если он был онлайн, его сессия будет завершена.');
         }
         
         async function adminUnbanUser(userId) {
             await fetch('/api/unban', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId }) });
             loadAdminPlayers();
+            alert('Игрок разбанен!');
         }
         
         async function adminAddCoins(userId) {
@@ -585,103 +526,18 @@
             loadAdminPlayers();
         }
         
-        function loadAdminPromocodes() {
-            let html = `<h3>🎁 ПРОМОКОДЫ</h3>
-                        <div><input type="text" id="promoCode" placeholder="Код" class="admin-input"><input type="text" id="promoReward" placeholder="Награда (100 монет)" class="admin-input"><input type="number" id="promoMax" placeholder="Лимит" class="admin-input"><button onclick="adminCreatePromocode()">Создать</button></div>
-                        <div id="promoList"></div>`;
-            document.getElementById('adminContent').innerHTML = html;
-            adminRefreshPromocodes();
-        }
-        
-        async function adminRefreshPromocodes() {
-            const res = await fetch('/api/promocodes');
-            const promos = await res.json();
-            let html = `<table class="admin-table"><thead><tr><th>Код</th><th>Награда</th><th>Активации</th><th>Действия</th></tr></thead><tbody>`;
-            for (const p of promos) {
-                html += `<tr><td>${p.code}</td><td>${p.reward}</td><td>${p.current_activations}/${p.max_activations}</td><td><button onclick="adminDeletePromocode(${p.id})">🗑 Удалить</button></td></tr>`;
-            }
-            html += `</tbody></table>`;
-            document.getElementById('promoList').innerHTML = html;
-        }
-        
-        async function adminCreatePromocode() {
-            const code = document.getElementById('promoCode').value;
-            const reward = document.getElementById('promoReward').value;
-            const max = parseInt(document.getElementById('promoMax').value);
-            if (!code || !reward || !max) return alert('Заполните все поля');
-            await fetch('/api/create_promo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, reward, max }) });
-            adminRefreshPromocodes();
-        }
-        
-        async function adminDeletePromocode(id) {
-            await fetch('/api/delete_promo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
-            adminRefreshPromocodes();
-        }
-        
-        function loadAdminEvents() {
-            let html = `<h3>🎉 ИВЕНТЫ</h3>
-                        <div><input type="text" id="eventName" placeholder="Название" class="admin-input"><select id="eventType" class="admin-input"><option value="double_cups">x2 Кубки</option><option value="free_box">Бесплатный ящик</option></select><input type="datetime-local" id="eventEnd" class="admin-input"><button onclick="adminCreateEvent()">Создать</button></div>
-                        <div id="eventsList"></div>`;
-            document.getElementById('adminContent').innerHTML = html;
-            adminRefreshEvents();
-        }
-        
-        async function adminRefreshEvents() {
-            const res = await fetch('/api/events');
-            const events = await res.json();
-            let html = `<table class="admin-table"><thead><tr><th>Название</th><th>Тип</th><th>До</th><th>Действия</th></tr></thead><tbody>`;
-            for (const e of events) {
-                html += `<tr><td>${e.name}</td><td>${e.event_type}</td><td>${new Date(e.end_time).toLocaleString()}</td><td><button onclick="adminStopEvent(${e.id})">⏹ Остановить</button></td></tr>`;
-            }
-            html += `</tbody></table>`;
-            document.getElementById('eventsList').innerHTML = html;
-        }
-        
-        async function adminCreateEvent() {
-            const name = document.getElementById('eventName').value;
-            const type = document.getElementById('eventType').value;
-            const end_time = document.getElementById('eventEnd').value;
-            if (!name || !end_time) return alert('Заполните поля');
-            await fetch('/api/create_event', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, type, end_time }) });
-            adminRefreshEvents();
-        }
-        
-        async function adminStopEvent(eventId) {
-            await fetch('/api/stop_event', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ eventId }) });
-            adminRefreshEvents();
-        }
-        
-        async function loadAdminReports() {
-            const res = await fetch('/api/reports');
-            const reports = await res.json();
-            let html = `<h3>📋 РЕПОРТЫ</h3><table class="admin-table"><thead><tr><th>От</th><th>На</th><th>Причина</th><th>Действия</th></tr></thead><tbody>`;
-            for (const r of reports) {
-                html += `<tr><td>${r.from_nick}</td><td>${r.to_nick}</td><td>${r.reason}</td><td><button onclick="adminResolveReport(${r.id}, 'ban')">🔨 Забанить</button><button onclick="adminResolveReport(${r.id}, 'reject')">❌ Отклонить</button></td></tr>`;
-            }
-            html += `</tbody></table>`;
-            document.getElementById('adminContent').innerHTML = html;
-        }
-        
-        async function adminResolveReport(reportId, action) {
-            await fetch('/api/resolve_report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reportId, action }) });
-            loadAdminReports();
-        }
-        
         async function loadAdminStats() {
             const res = await fetch('/api/users');
             const users = await res.json();
-            let online = 0;
             let totalCups = users.reduce((s, u) => s + (u.cups || 0), 0);
             let totalCoins = users.reduce((s, u) => s + (u.coins || 0), 0);
-            let html = `<h3>📊 СТАТИСТИКА СЕРВЕРА</h3>
+            let html = `<div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:30px;">
                         <p>👥 Всего игроков: ${users.length}</p>
-                        <p>🟢 Онлайн: ${online}</p>
                         <p>🏆 Всего кубков: ${totalCups}</p>
-                        <p>💰 Всего монет: ${totalCoins}</p>`;
+                        <p>💰 Всего монет: ${totalCoins}</p>
+                        </div>`;
             document.getElementById('adminContent').innerHTML = html;
         }
-        
-        function openAdminPanel() { document.getElementById('adminModal').style.display = 'flex'; loadAdminPlayers(); }
         
         // ========== ОСНОВНЫЕ ФУНКЦИИ ==========
         function initShop() {
@@ -795,7 +651,16 @@
         function openNewsModal() { initNews(); document.getElementById('newsModal').style.display = 'flex'; }
         function closeModalById(id) { document.getElementById(id).style.display = 'none'; }
         function toggleMenu() { const m = document.getElementById('menuPanel'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
-        function openModal(type) { toggleMenu(); document.getElementById(type + 'Modal').style.display = 'flex'; if (type === 'leaders') loadLeaders(); if (type === 'history') updateHistoryDisplay(); }
+        function openModal(type) { 
+            toggleMenu(); 
+            document.getElementById(type + 'Modal').style.display = 'flex'; 
+            if (type === 'leaders') loadLeaders(); 
+            if (type === 'history') updateHistoryDisplay();
+            if (type === 'settings' && isAdmin) {
+                document.getElementById('adminPanel').style.display = 'block';
+                loadAdminPlayers();
+            }
+        }
         
         function getRankByCups(cups) {
             if (cups < 100) return "Бронза III";
@@ -861,9 +726,6 @@
                 isAdmin = data.player.is_admin === true;
                 document.getElementById('authPanel').style.display = 'none';
                 document.getElementById('gamePanel').classList.remove('hidden');
-                if (isAdmin) {
-                    document.getElementById('adminMenuBtn').style.display = 'block';
-                }
                 await refreshProfileData();
                 currentLanguage = localStorage.getItem('language') || 'ru';
                 document.getElementById('languageSelect').value = currentLanguage;
@@ -874,7 +736,7 @@
         document.getElementById('nickname').addEventListener('input', e => document.getElementById('adminPasswordGroup').classList.toggle('hidden', e.target.value !== 'unity'));
         window.onclick = event => { if (event.target.classList.contains('modal')) event.target.style.display = 'none'; };
         
-        // Заглушки для недостающих функций
+        // Заглушки
         function loadLeaders() { document.getElementById('leadersList').innerHTML = '<div>Загрузка...</div>'; }
         function updateHistoryDisplay() { }
         function switchLeaderTab(tab) { }
