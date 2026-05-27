@@ -21,16 +21,16 @@
 
         /* Анимация переливающегося текста */
         @keyframes rainbow {
-            0% { text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000; color: #ff0000; }
-            20% { text-shadow: 0 0 5px #ffff00, 0 0 10px #ffff00; color: #ffff00; }
-            40% { text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; color: #00ff00; }
-            60% { text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff; color: #00ffff; }
-            80% { text-shadow: 0 0 5px #0000ff, 0 0 10px #0000ff; color: #0000ff; }
-            100% { text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff; color: #ff00ff; }
+            0% { text-shadow: 0 0 3px #ff0000; color: #ff0000; }
+            20% { text-shadow: 0 0 3px #ffff00; color: #ffff00; }
+            40% { text-shadow: 0 0 3px #00ff00; color: #00ff00; }
+            60% { text-shadow: 0 0 3px #00ffff; color: #00ffff; }
+            80% { text-shadow: 0 0 3px #0000ff; color: #0000ff; }
+            100% { text-shadow: 0 0 3px #ff00ff; color: #ff00ff; }
         }
 
         .rainbow-text {
-            animation: rainbow 2s infinite;
+            animation: rainbow 1.5s infinite;
             font-weight: bold;
         }
 
@@ -334,7 +334,6 @@
         .tier-level { font-size: 16px; font-weight: bold; color: #aaa; }
         .tier-reward { font-size: 28px; margin: 10px 0; }
         .claim-tier-btn { background: #e94560; border: none; padding: 5px 12px; border-radius: 30px; font-size: 11px; cursor: pointer; margin-top: 8px; color: white; }
-        .claim-tier-btn.disabled { opacity: 0.5; cursor: not-allowed; }
         .activate-premium-btn, .buy-level-btn { background: linear-gradient(135deg, #f9a826, #e94560); border: none; padding: 8px 20px; border-radius: 50px; font-size: 14px; cursor: pointer; font-weight: bold; }
         .activation-modal {
             display: none;
@@ -622,7 +621,7 @@
             savePassData(); renderPass();
         }
 
-        // Остальные функции (лидеры, бои, профиль)
+        // Остальные функции (лидеры, бои, профиль) — без изменений
         const gameModes = { crystal: { name: "Захват кристаллов", baseReward: 10 }, brawlball: { name: "Броулбол", baseReward: 15 }, bounty: { name: "Награда за поимку", baseReward: 12 }, showdown: { name: "Столкновение", baseReward: 20 }, heist: { name: "Ограбление", baseReward: 18 } };
         const translations = { ru: { settings: "⚙️ НАСТРОЙКИ", history: "📜 ИСТОРИЯ БОЕВ", leaders: "🏆 СПИСКИ ЛИДЕРОВ", inbox: "📥 ВХОДЯЩИЕ", link: "🔗 ПРИВЯЗКА АККАУНТА", language: "🌐 ЯЗЫК" }, en: { settings: "⚙️ SETTINGS", history: "📜 BATTLE HISTORY", leaders: "🏆 LEADERBOARDS", inbox: "📥 INBOX", link: "🔗 ACCOUNT LINK", language: "🌐 LANGUAGE" } };
         function applyLanguage() { const t = translations[currentLanguage]; if(document.querySelector('#menuPanel button:nth-child(1)')) document.querySelector('#menuPanel button:nth-child(1)').innerHTML = t.settings; if(document.querySelector('#menuPanel button:nth-child(2)')) document.querySelector('#menuPanel button:nth-child(2)').innerHTML = t.history; if(document.querySelector('#menuPanel button:nth-child(3)')) document.querySelector('#menuPanel button:nth-child(3)').innerHTML = t.leaders; if(document.querySelector('#menuPanel button:nth-child(4)')) document.querySelector('#menuPanel button:nth-child(4)').innerHTML = t.inbox; if(document.querySelector('#menuPanel button:nth-child(5)')) document.querySelector('#menuPanel button:nth-child(5)').innerHTML = t.link; if(document.querySelector('#settingsModal h2')) document.querySelector('#settingsModal h2').innerHTML = t.settings; if(document.querySelector('.settings-row .settings-label')) document.querySelector('.settings-row .settings-label').innerHTML = t.language; }
