@@ -123,7 +123,7 @@
             box-shadow: 0 0 30px rgba(0,255,136,0.8);
         }
 
-        /* Модальное окно симуляции боя */
+        /* Модальное окно выбора режима */
         .battle-modal {
             display: none;
             position: fixed;
@@ -146,12 +146,6 @@
             padding: 35px;
             text-align: center;
             box-shadow: 0 0 50px rgba(233,69,96,0.4);
-        }
-
-        .battle-title {
-            font-size: 28px;
-            margin-bottom: 20px;
-            color: #f9a826;
         }
 
         .mode-selector-battle {
@@ -203,11 +197,6 @@
             margin: 10px 0;
         }
 
-        .battle-result {
-            font-size: 20px;
-            margin: 15px 0;
-        }
-
         .close-battle {
             background: #e94560;
             padding: 10px 25px;
@@ -218,7 +207,67 @@
             margin-top: 20px;
         }
 
-        /* Остальные стили (профиль, путь к славе, лидеры) — без изменений */
+        /* ОКНО ВИРТУАЛЬНОЙ ИГРЫ (открывается во время боя) */
+        .gameplay-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.98);
+            z-index: 400;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gameplay-container {
+            background: linear-gradient(145deg, #0f172a, #020617);
+            width: 90%;
+            max-width: 500px;
+            border-radius: 60px;
+            border: 2px solid #00ff88;
+            padding: 35px;
+            text-align: center;
+        }
+
+        .gameplay-timer {
+            font-size: 64px;
+            font-weight: bold;
+            color: #00ff88;
+            margin: 20px 0;
+        }
+
+        .gameplay-result {
+            font-size: 24px;
+            margin: 15px 0;
+        }
+
+        /* Окно итогов сессии */
+        .results-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 350;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .results-container {
+            background: linear-gradient(145deg, #0f172a, #020617);
+            width: 90%;
+            max-width: 500px;
+            border-radius: 60px;
+            border: 2px solid #f9a826;
+            padding: 35px;
+            text-align: center;
+        }
+
+        /* Остальные стили (профиль, путь к славе, лидеры, история) */
         .menu-panel {
             display: none;
             position: fixed;
@@ -354,7 +403,7 @@
         <button onclick="openModal('link')">🔗 ПРИВЯЗКА АККАУНТА</button>
     </div>
 
-    <!-- ОКНО СИМУЛЯЦИИ БОЯ -->
+    <!-- ОКНО ВЫБОРА РЕЖИМА -->
     <div id="battleModal" class="battle-modal">
         <div class="battle-container">
             <h2 class="battle-title">🎮 ВЫБОР РЕЖИМА</h2>
@@ -373,27 +422,43 @@
                 <div>🔍 ПОИСК СОПЕРНИКА...</div>
                 <div class="search-timer" id="searchTimer">30</div>
             </div>
-            <div class="battle-result" id="battleResult"></div>
             <button class="close-battle" onclick="closeBattleModal()">✖ ЗАКРЫТЬ</button>
         </div>
     </div>
 
-    <!-- Остальные окна (профиль, путь к славе, лидеры и т.д.) — сокращённо, без изменений -->
-    <div id="settingsModal" class="modal"><div class="settings-container"><button class="close-modal" onclick="closeModal('settingsModal')">✖</button><h2 style="text-align:center;">⚙️ НАСТРОЙКИ</h2><div class="settings-row"><span class="settings-label">🌐 ЯЗЫК</span><select id="languageSelect" class="lang-select"><option value="ru">Русский</option><option value="en">English</option></select></div></div></div>
+    <!-- ОКНО ВИРТУАЛЬНОЙ ИГРЫ (открывается во время боя) -->
+    <div id="gameplayModal" class="gameplay-modal">
+        <div class="gameplay-container">
+            <h2 id="gameplayModeName">💎 ЗАХВАТ КРИСТАЛЛОВ</h2>
+            <div class="gameplay-timer" id="gameplayTimer">0:00</div>
+            <div class="gameplay-result" id="gameplayResult"></div>
+        </div>
+    </div>
+
+    <!-- ОКНО ИТОГОВ СЕССИИ -->
+    <div id="resultsModal" class="results-modal">
+        <div class="results-container">
+            <h2>🏆 ИТОГИ СЕССИИ</h2>
+            <div id="resultsContent"></div>
+            <button class="close-battle" onclick="closeResultsModal()">✖ ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <!-- Остальные окна (профиль, лидеры, история и т.д.) -->
+    <div id="settingsModal" class="modal"><div class="settings-container"><button class="close-modal" onclick="closeModal('settingsModal')">✖</button><h2>⚙️ НАСТРОЙКИ</h2><div class="settings-row"><span class="settings-label">🌐 ЯЗЫК</span><select id="languageSelect" class="lang-select"><option value="ru">Русский</option><option value="en">English</option></select></div></div></div>
     <div id="historyModal" class="modal"><div class="history-container"><button class="close-modal" onclick="closeModal('historyModal')">✖</button><h2>📜 ИСТОРИЯ БОЕВ</h2><div id="historyList" class="history-list">Нет боёв</div></div></div>
     <div id="leadersModal" class="modal"><div class="leaders-container"><button class="close-modal" onclick="closeModal('leadersModal')">✖</button><h2>🏆 СПИСКИ ЛИДЕРОВ</h2><div class="leaders-tabs"><button class="leaders-tab active" onclick="switchLeaderTab('cups')">🏆 ПО КУБКАМ</button><button class="leaders-tab" onclick="switchLeaderTab('brawlers')">🤖 ПО БОЙЦАМ</button></div><div id="leadersList" class="leaders-list">Загрузка...</div></div></div>
-    <div id="inboxModal" class="modal"><div class="profile-container"><button class="close-modal" onclick="closeModal('inboxModal')">✖</button><h2>📥 ВХОДЯЩИЕ</h2><p style="margin:20px">Сообщения, подарки, приглашения</p></div></div>
-    <div id="linkModal" class="modal"><div class="profile-container"><button class="close-modal" onclick="closeModal('linkModal')">✖</button><h2>🔗 ПРИВЯЗКА АККАУНТА</h2><p style="margin:20px">Привяжи Google, Supercell ID или почту</p></div></div>
+    <div id="inboxModal" class="modal"><div class="profile-container"><button class="close-modal" onclick="closeModal('inboxModal')">✖</button><h2>📥 ВХОДЯЩИЕ</h2><p>Сообщения, подарки, приглашения</p></div></div>
+    <div id="linkModal" class="modal"><div class="profile-container"><button class="close-modal" onclick="closeModal('linkModal')">✖</button><h2>🔗 ПРИВЯЗКА АККАУНТА</h2><p>Привяжи Google, Supercell ID или почту</p></div></div>
     <div id="profileModal" class="modal"><div class="profile-container"><button class="close-modal" onclick="closeProfileModal()">✖</button><div class="profile-header"><div class="avatar-section"><div class="avatar-large" id="largeAvatar" onclick="openAvatarPicker()">🎮</div><div class="player-tag-static" id="profileTag">#----</div></div><div class="info-section"><div class="nickname-wrapper"><div class="profile-nickname" id="profileNick">-</div><div class="edit-icon" onclick="openNicknameEditor()">✏️</div><div class="color-icon" onclick="openColorPicker()">🎨</div></div><div class="profile-cups">🏆 <span id="profileCups">0</span> кубков</div></div></div><div class="stats-grid"><div class="stat-card"><h3>🎲 ОТКРЫТО ЯЩИКОВ</h3><div class="stat-value" id="profileBoxes">0</div></div><div class="stat-card"><h3>💰 МОНЕТЫ</h3><div class="stat-value" id="profileCoins">0</div></div><div class="stat-card"><h3>🏆 КУБКОВ ВСЕГО</h3><div class="stat-value" id="profileTotalCups">0</div></div><div class="stat-card"><h3>⭐ ЛУЧШИЙ РЕКОРД</h3><div class="stat-value" id="recordCups">0</div></div></div></div></div>
     <div id="viewProfileModal" class="modal"><div class="profile-container"><button class="close-modal" onclick="closeViewProfileModal()">✖</button><div class="profile-header"><div class="avatar-section"><div class="avatar-large" id="viewAvatar">🎮</div><div class="player-tag-static" id="viewTag">#----</div></div><div class="info-section"><div class="nickname-wrapper"><div class="profile-nickname" id="viewNickname">-</div></div><div class="profile-cups">🏆 <span id="viewCups">0</span> кубков</div></div></div><div class="stats-grid"><div class="stat-card"><h3>🎲 ОТКРЫТО ЯЩИКОВ</h3><div class="stat-value" id="viewBoxes">0</div></div><div class="stat-card"><h3>💰 МОНЕТЫ</h3><div class="stat-value" id="viewCoins">0</div></div><div class="stat-card"><h3>🏆 КУБКОВ ВСЕГО</h3><div class="stat-value" id="viewTotalCups">0</div></div><div class="stat-card"><h3>⭐ ЛУЧШИЙ РЕКОРД</h3><div class="stat-value" id="viewRecordCups">0</div></div></div></div></div>
-    <div id="pathModal" class="modal"><div class="glory-container"><button class="close-modal" onclick="closePathModal()">✖</button><div class="glory-header"><h1>🏆 ПУТЬ К СЛАВЕ 🏆</h1><p>Собирай кубки, чтобы получать награды!</p></div><div class="progress-info"><div><div style="font-size:14px;">ТВОИ КУБКИ</div><div class="current-cups" id="currentCupsDisplay">0</div></div><div class="next-milestone"><div style="font-size:14px;">ДО СЛЕДУЮЩЕЙ НАГРАДЫ</div><div class="milestone-cups" id="nextMilestone">0</div></div></div><div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div><div class="track-container"><div class="track-scroll" id="trackScroll"></div><div class="scroll-buttons"><button class="scroll-btn" onclick="scrollTrack(-150)">◀</button><button class="scroll-btn" onclick="scrollTrack(150)">▶</button></div></div></div></div>
-    <div id="avatarPickerModal" class="modal"><div class="avatar-selector"><div id="avatarSelector" style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center;"></div></div></div>
+    <div id="pathModal" class="modal"><div class="glory-container"><button class="close-modal" onclick="closePathModal()">✖</button><div class="glory-header"><h1>🏆 ПУТЬ К СЛАВЕ 🏆</h1><p>Собирай кубки, чтобы получать награды!</p></div><div class="progress-info"><div><div>ТВОИ КУБКИ</div><div class="current-cups" id="currentCupsDisplay">0</div></div><div class="next-milestone"><div>ДО СЛЕДУЮЩЕЙ НАГРАДЫ</div><div class="milestone-cups" id="nextMilestone">0</div></div></div><div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div><div class="track-container"><div class="track-scroll" id="trackScroll"></div><div class="scroll-buttons"><button class="scroll-btn" onclick="scrollTrack(-150)">◀</button><button class="scroll-btn" onclick="scrollTrack(150)">▶</button></div></div></div></div>
+    <div id="avatarPickerModal" class="modal"><div class="avatar-selector"><div id="avatarSelector"></div></div></div>
     <div id="nicknameEditorModal" class="modal"><div class="nickname-container"><h3>✏️ СМЕНИТЬ НИКНЕЙМ</h3><input type="text" id="newNicknameInput" placeholder="Новый никнейм"><button class="btn" onclick="changeNickname()">СОХРАНИТЬ</button><button class="btn" onclick="closeNicknameEditor()">ОТМЕНА</button></div></div>
     <div id="colorPickerModal" class="modal"><div class="color-container"><h3>🎨 ВЫБЕРИ ЦВЕТ НИКНЕЙМА</h3><div class="color-options" id="colorOptions"></div></div></div>
     <div id="authPanel" class="modal" style="display:flex; background:rgba(0,0,0,0.95);"><div class="profile-container" style="max-width:400px;"><h2>🔐 ВХОД</h2><input type="text" id="nickname" placeholder="Никнейм"><div id="adminPasswordGroup" class="hidden"><input type="password" id="adminPassword" placeholder="Пароль админа"></div><button class="btn" onclick="login()">ВОЙТИ</button><div id="authMessage"></div></div></div>
-    <div id="gamePanel" class="hidden"><div class="main-menu"><h1>⚡ BRAWL BOX ⚡</h1><div class="game-placeholder"><p style="color:#aaa; font-size:18px;">Нажми кнопку "ИГРАТЬ" снизу справа</p></div></div></div>
+    <div id="gamePanel" class="hidden"><div class="main-menu"><h1>⚡ BRAWL BOX ⚡</h1><div class="game-placeholder"><p>Нажми кнопку "ИГРАТЬ" снизу справа</p></div></div></div>
 
-    <!-- КНОПКА ИГРАТЬ (снизу справа) -->
     <button class="play-fixed" id="globalPlayBtn">🎮 ИГРАТЬ</button>
 
     <script>
@@ -402,8 +467,13 @@
         let currentLanguage = 'ru';
         let currentLeaderTab = 'cups';
         let battleHistory = [];
-        let searchInterval = null;
         let currentBattleMode = 'crystal';
+        let gamesToPlay = 3;
+        let currentGameIndex = 0;
+        let totalWins = 0;
+        let totalReward = 0;
+        let currentGameReward = 0;
+        let gameInterval = null;
         
         const DEV_AVATAR_URL = "https://yt3.googleusercontent.com/wEnonoxntKdkIuHZbNouYlz6YoCchSbx7tpBRaVS6V08XzJYkvNZaG34RwZV7khnoF6hqI-kGw=s900-c-k-c0x00ffffff-no-rj";
         
@@ -422,110 +492,124 @@
 
         function applyLanguage() {
             const t = translations[currentLanguage];
-            document.querySelector('#menuPanel button:nth-child(1)').innerHTML = t.settings;
-            document.querySelector('#menuPanel button:nth-child(2)').innerHTML = t.history;
-            document.querySelector('#menuPanel button:nth-child(3)').innerHTML = t.leaders;
-            document.querySelector('#menuPanel button:nth-child(4)').innerHTML = t.inbox;
-            document.querySelector('#menuPanel button:nth-child(5)').innerHTML = t.link;
-            document.querySelector('#settingsModal h2').innerHTML = t.settings;
-            document.querySelector('.settings-row .settings-label').innerHTML = t.language;
+            if(document.querySelector('#menuPanel button:nth-child(1)')) document.querySelector('#menuPanel button:nth-child(1)').innerHTML = t.settings;
+            if(document.querySelector('#menuPanel button:nth-child(2)')) document.querySelector('#menuPanel button:nth-child(2)').innerHTML = t.history;
+            if(document.querySelector('#menuPanel button:nth-child(3)')) document.querySelector('#menuPanel button:nth-child(3)').innerHTML = t.leaders;
+            if(document.querySelector('#menuPanel button:nth-child(4)')) document.querySelector('#menuPanel button:nth-child(4)').innerHTML = t.inbox;
+            if(document.querySelector('#menuPanel button:nth-child(5)')) document.querySelector('#menuPanel button:nth-child(5)').innerHTML = t.link;
+            if(document.querySelector('#settingsModal h2')) document.querySelector('#settingsModal h2').innerHTML = t.settings;
+            if(document.querySelector('.settings-row .settings-label')) document.querySelector('.settings-row .settings-label').innerHTML = t.language;
         }
 
-        // ОТКРЫТИЕ ОКНА БОЯ
-        function openBattleModal() {
-            document.getElementById('battleModal').style.display = 'flex';
-            document.getElementById('searchingArea').style.display = 'none';
-            document.getElementById('battleResult').innerHTML = '';
-            // Выбор режима
-            document.querySelectorAll('#battleModeSelector .mode-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.getAttribute('data-mode') === currentBattleMode) btn.classList.add('active');
-                btn.onclick = () => {
-                    currentBattleMode = btn.getAttribute('data-mode');
-                    document.querySelectorAll('#battleModeSelector .mode-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                };
-            });
-        }
-        
-        function closeBattleModal() {
-            document.getElementById('battleModal').style.display = 'none';
-            if (searchInterval) clearInterval(searchInterval);
-        }
-        
+        // БОЕВАЯ ЛОГИКА С ОТДЕЛЬНЫМ ОКНОМ
         function startBattleSession() {
-            const gamesCount = parseInt(document.getElementById('battleGamesCount').value) || 3;
-            if (gamesCount < 1 || gamesCount > 25) {
-                alert('Количество игр от 1 до 25');
-                return;
-            }
+            gamesToPlay = parseInt(document.getElementById('battleGamesCount').value) || 3;
+            if (gamesToPlay < 1 || gamesToPlay > 25) { alert('Количество игр от 1 до 25'); return; }
             
-            // Показываем поиск
+            currentGameIndex = 0;
+            totalWins = 0;
+            totalReward = 0;
+            
+            // Поиск соперника
             document.getElementById('searchingArea').style.display = 'block';
-            document.getElementById('battleResult').innerHTML = '';
             let searchTime = 30;
             const searchTimerElement = document.getElementById('searchTimer');
             searchTimerElement.textContent = searchTime;
-            
-            if (searchInterval) clearInterval(searchInterval);
-            searchInterval = setInterval(() => {
+            const searchInterval = setInterval(() => {
                 searchTime--;
                 searchTimerElement.textContent = searchTime;
                 if (searchTime <= 0) {
                     clearInterval(searchInterval);
                     document.getElementById('searchingArea').style.display = 'none';
-                    startBattle(gamesCount);
+                    closeBattleModal();
+                    playNextGame();
                 }
             }, 1000);
         }
         
-        function startBattle(gamesToPlay) {
-            let gamesPlayed = 0;
-            let totalScore = 0;
-            let totalReward = 0;
-            
-            function playNext() {
-                if (gamesPlayed >= gamesToPlay) {
-                    document.getElementById('battleResult').innerHTML = `<div>🏆 СЕССИЯ ЗАВЕРШЕНА! 🏆</div>
-                                        <div>⭐ ПОБЕД: ${totalScore}/${gamesToPlay}</div>
-                                        <div>💰 ВСЕГО МОНЕТ: ${totalReward}</div>`;
-                    return;
-                }
-                gamesPlayed++;
-                
-                // Симуляция боя
-                const isWin = Math.random() < 0.6;
-                const baseReward = gameModes[currentBattleMode].baseReward;
-                let reward = isWin ? baseReward : Math.floor(baseReward / 2);
-                let cupsGain = isWin ? Math.floor(reward / 2) : 0;
-                totalReward += reward;
-                if (isWin) totalScore++;
-                
-                const resultText = `<div>⚔ БОЙ ${gamesPlayed}/${gamesToPlay}</div>
-                                    <div>${isWin ? '🎉 ПОБЕДА! 🎉' : '💔 ПОРАЖЕНИЕ 💔'}</div>
-                                    <div>💰 +${reward} монет</div>`;
-                document.getElementById('battleResult').innerHTML = resultText;
-                
-                // Сохраняем в историю
-                const historyItem = {
-                    mode: currentBattleMode,
-                    modeName: gameModes[currentBattleMode].name,
-                    result: isWin ? 'Победа' : 'Поражение',
-                    reward: reward,
-                    cups: cupsGain,
-                    time: new Date().toLocaleString()
-                };
-                battleHistory.unshift(historyItem);
-                localStorage.setItem('battleHistory_' + currentPlayerId, JSON.stringify(battleHistory));
-                updateHistoryDisplay();
-                
-                // Обновляем баланс
-                updatePlayerBalance(reward, cupsGain);
-                
-                setTimeout(playNext, 2000);
+        function playNextGame() {
+            if (currentGameIndex >= gamesToPlay) {
+                showResults();
+                return;
             }
+            currentGameIndex++;
+            startVirtualBattle();
+        }
+        
+        function startVirtualBattle() {
+            // Открываем окно виртуальной игры
+            const gameplayModal = document.getElementById('gameplayModal');
+            gameplayModal.style.display = 'flex';
+            document.getElementById('gameplayModeName').innerHTML = gameModes[currentBattleMode].name;
             
-            playNext();
+            let timeLeft = gameModes[currentBattleMode].time;
+            const timerElement = document.getElementById('gameplayTimer');
+            const resultElement = document.getElementById('gameplayResult');
+            resultElement.innerHTML = '';
+            
+            function updateTimerDisplay() {
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                timerElement.innerHTML = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+            updateTimerDisplay();
+            
+            if (gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(gameInterval);
+                    endVirtualBattle();
+                }
+            }, 1000);
+        }
+        
+        function endVirtualBattle() {
+            clearInterval(gameInterval);
+            const isWin = Math.random() < 0.6;
+            const baseReward = gameModes[currentBattleMode].baseReward;
+            currentGameReward = isWin ? baseReward : Math.floor(baseReward / 2);
+            const cupsGain = isWin ? Math.floor(currentGameReward / 2) : 0;
+            totalReward += currentGameReward;
+            if (isWin) totalWins++;
+            
+            const resultElement = document.getElementById('gameplayResult');
+            resultElement.innerHTML = `<div style="font-size:28px;">${isWin ? '🎉 ПОБЕДА! 🎉' : '💔 ПОРАЖЕНИЕ 💔'}</div>
+                                       <div>💰 +${currentGameReward} монет</div>`;
+            
+            // Сохраняем в историю
+            const historyItem = {
+                mode: currentBattleMode,
+                modeName: gameModes[currentBattleMode].name,
+                result: isWin ? 'Победа' : 'Поражение',
+                reward: currentGameReward,
+                cups: cupsGain,
+                time: new Date().toLocaleString()
+            };
+            battleHistory.unshift(historyItem);
+            localStorage.setItem('battleHistory_' + currentPlayerId, JSON.stringify(battleHistory));
+            updateHistoryDisplay();
+            
+            // Обновляем баланс
+            updatePlayerBalance(currentGameReward, cupsGain);
+            
+            // Закрываем окно виртуальной игры через 2 секунды и переходим к следующей
+            setTimeout(() => {
+                document.getElementById('gameplayModal').style.display = 'none';
+                playNextGame();
+            }, 2000);
+        }
+        
+        function showResults() {
+            const resultsContent = document.getElementById('resultsContent');
+            resultsContent.innerHTML = `<div style="font-size:24px; margin:20px;">⭐ ПОБЕД: ${totalWins}/${gamesToPlay}</div>
+                                        <div style="font-size:24px; margin:20px;">💰 ВСЕГО МОНЕТ: ${totalReward}</div>`;
+            document.getElementById('resultsModal').style.display = 'flex';
+        }
+        
+        function closeResultsModal() {
+            document.getElementById('resultsModal').style.display = 'none';
         }
         
         async function updatePlayerBalance(coins, cups) {
@@ -552,7 +636,7 @@
             });
         }
         
-        // Лидеры и остальные функции
+        // Остальные функции (лидеры, профиль, путь к славе и т.д.)
         async function loadLeaders() {
             const res = await fetch('/api/users');
             let users = await res.json();
@@ -683,6 +767,22 @@
         function toggleMenu() { const m = document.getElementById('menuPanel'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
         function openModal(id) { toggleMenu(); document.getElementById(id + 'Modal').style.display = 'flex'; if (id === 'leaders') loadLeaders(); if (id === 'history') updateHistoryDisplay(); }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        function openBattleModal() {
+            document.getElementById('battleModal').style.display = 'flex';
+            document.getElementById('searchingArea').style.display = 'none';
+            document.querySelectorAll('#battleModeSelector .mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-mode') === currentBattleMode) btn.classList.add('active');
+                btn.onclick = () => {
+                    currentBattleMode = btn.getAttribute('data-mode');
+                    document.querySelectorAll('#battleModeSelector .mode-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                };
+            });
+        }
+        function closeBattleModal() { document.getElementById('battleModal').style.display = 'none'; }
+        
         async function changeAvatar(avatarValue, isUrl = false) { await fetch('/api/change_avatar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, avatar: isUrl ? DEV_AVATAR_URL : avatarValue }) }); await refreshProfileData(); closeAvatarPicker(); }
         async function changeNickname() { const newNick = document.getElementById('newNicknameInput').value.trim(); if (!newNick) return alert("Введи никнейм"); const res = await fetch('/api/change_nickname', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, newNickname: newNick, color: null }) }); const data = await res.json(); if (data.success) { await refreshProfileData(); closeNicknameEditor(); } else alert(data.message || "Ошибка"); }
         async function changeColorOnly(color) { await fetch('/api/change_nickname', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, color: color }) }); await refreshProfileData(); }
@@ -719,8 +819,7 @@
                 applyLanguage();
                 document.getElementById('languageSelect').onchange = (e) => { currentLanguage = e.target.value; localStorage.setItem('language', currentLanguage); applyLanguage(); };
                 document.getElementById('globalPlayBtn').onclick = openBattleModal;
-                document.getElementById('battleModal').querySelector('.close-battle').onclick = closeBattleModal;
-                // Кнопка "Начать бой" в окне
+                // Кнопка начала боя в окне выбора
                 const startBtn = document.createElement('button');
                 startBtn.textContent = '⚔ НАЧАТЬ ПОИСК ⚔';
                 startBtn.style.background = '#e94560';
