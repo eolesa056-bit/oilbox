@@ -395,6 +395,7 @@
         </div>
     </div>
 
+    <!-- ГАМБУРГЕР-МЕНЮ -->
     <div id="menuPanel" class="menu-panel">
         <button onclick="openModal('settings')">⚙️ НАСТРОЙКИ</button>
         <button onclick="openModal('history')">📜 ИСТОРИЯ БОЕВ</button>
@@ -475,7 +476,7 @@
     <div id="authPanel" class="modal" style="display:flex; background:rgba(0,0,0,0.95);"><div class="profile-container" style="max-width:400px;"><h2>🔐 ВХОД</h2><input type="text" id="nickname" placeholder="Никнейм"><div id="adminPasswordGroup" class="hidden"><input type="password" id="adminPassword" placeholder="Пароль админа"></div><button class="btn" onclick="login()">ВОЙТИ</button><div id="authMessage"></div></div></div>
     <div id="gamePanel" class="hidden"><div class="main-menu"><h1>⚡ BRAWL BOX ⚡</h1><div class="game-placeholder"><p>Нажми кнопку "ИГРАТЬ" снизу справа</p></div></div></div>
 
-    <!-- Окна Бравл Пасса и боя -->
+    <!-- Окна Бравл Пасса и боя (заглушки) -->
     <div id="passModal" class="pass-modal"><div class="pass-container"><button class="close-pass" onclick="closePassModal()">✖</button><div class="pass-header"><h2>🏆 BRAWL PASS 🏆</h2></div><div class="pass-level">УРОВЕНЬ: <span id="passCurrentLevel">1</span> / 10</div><div class="pass-progress"><div class="pass-progress-fill" id="passProgressFill"></div></div><div style="display: flex; gap: 10px; justify-content: center; margin: 10px 0;"><button class="buy-level-btn" onclick="buyLevel()">📈 КУПИТЬ УРОВЕНЬ (50💎)</button></div><div class="pass-tracks"><div class="track track-premium" id="premiumTrack"><div class="track-title"><span>💎 ПРЕМИУМ НАГРАДЫ</span><button id="activatePremiumBtn" class="activate-premium-btn">АКТИВИРОВАТЬ (169💎)</button></div><div class="track-scroll" id="premiumScroll"></div></div><div class="track track-free"><div class="track-title"><span>🎁 БЕСПЛАТНЫЕ НАГРАДЫ</span></div><div class="track-scroll" id="freeScroll"></div></div></div></div></div>
     <div id="battleModal" class="battle-modal"><div class="battle-container"><h2>🎮 ВЫБОР РЕЖИМА</h2><div class="mode-selector-battle" id="battleModeSelector"><div class="mode-btn" data-mode="crystal">💎 ЗАХВАТ КРИСТАЛЛОВ</div><div class="mode-btn" data-mode="brawlball">⚽ БРОУЛБОЛ</div><div class="mode-btn" data-mode="bounty">💰 НАГРАДА ЗА ПОЙМКУ</div><div class="mode-btn" data-mode="showdown">🥊 СТОЛКНОВЕНИЕ</div><div class="mode-btn" data-mode="heist">🏦 ОГРАБЛЕНИЕ</div></div><div class="game-count"><label>🎮 ИГР ЗА РАЗ: </label><input type="number" id="battleGamesCount" min="1" max="25" value="3"></div><button class="close-battle" onclick="closeBattleModal()">✖ ЗАКРЫТЬ</button></div></div>
     <div id="gameplayModal" class="gameplay-modal"><div class="gameplay-container"><h2 id="gameplayModeName">💎 ЗАХВАТ КРИСТАЛЛОВ</h2><div class="gameplay-timer" id="gameplayTimer">30</div><div id="gameplayBattles" class="gameplay-battles"></div></div></div>
@@ -498,7 +499,7 @@
         // Данные Бравл Пасса
         let passData = { premiumActive: false, currentLevel: 1, currentExp: 0, claimedFree: [], claimedPremium: [] };
         const passRewards = {
-            free: [ /* ... (как в предыдущих версиях) */ ],
+            free: [ /* ... */ ],
             premium: [ /* ... */ ]
         };
         
@@ -540,7 +541,7 @@
             const users = await res.json();
             let html = `<h3>👥 УПРАВЛЕНИЕ ИГРОКАМИ</h3>
                         <table class="admin-table">
-                            <thead><tr><th>ID</th><th>Ник</th><th>Кубки</th><th>Монеты</th><th>Гемы</th><th>Бан</th><th>Действия</th></tr></thead>
+                            <thead><tr><th>ID</th><th>Ник</th><th>Кубки</th><th>Монеты</th><th>Гемы</th><th>Бан</th><th>Действия</th></table></thead>
                             <tbody>`;
             for (const u of users) {
                 html += `<tr>
@@ -556,7 +557,7 @@
                                 <button onclick="adminAddCoins(${u.id})">💰 +100 монет</button>
                                 <button onclick="adminAddGems(${u.id})">💎 +10 гемов</button>
                             </td>
-                        </tr>`;
+                         </tr>`;
             }
             html += `</tbody></table>`;
             document.getElementById('adminContent').innerHTML = html;
@@ -669,23 +670,126 @@
         async function loadAdminStats() {
             const res = await fetch('/api/users');
             const users = await res.json();
-            const online = 0; // заглушка
-            const totalCups = users.reduce((s, u) => s + (u.cups || 0), 0);
-            html = `<h3>📊 СТАТИСТИКА СЕРВЕРА</h3>
-                    <p>👥 Всего игроков: ${users.length}</p>
-                    <p>🟢 Онлайн: ${online}</p>
-                    <p>🏆 Всего кубков: ${totalCups}</p>
-                    <p>💰 Всего монет: ${users.reduce((s, u) => s + (u.coins || 0), 0)}</p>`;
+            let online = 0;
+            let totalCups = users.reduce((s, u) => s + (u.cups || 0), 0);
+            let totalCoins = users.reduce((s, u) => s + (u.coins || 0), 0);
+            let html = `<h3>📊 СТАТИСТИКА СЕРВЕРА</h3>
+                        <p>👥 Всего игроков: ${users.length}</p>
+                        <p>🟢 Онлайн: ${online}</p>
+                        <p>🏆 Всего кубков: ${totalCups}</p>
+                        <p>💰 Всего монет: ${totalCoins}</p>`;
             document.getElementById('adminContent').innerHTML = html;
         }
         
         function openAdminPanel() { document.getElementById('adminModal').style.display = 'flex'; loadAdminPlayers(); }
         
         // ========== ОСНОВНЫЕ ФУНКЦИИ ==========
-        function initShop() { /* ... */ }
-        function initBrawlers() { /* ... */ }
-        function renderBrawlers() { /* ... */ }
-        function initNews() { /* ... */ }
+        function initShop() {
+            const container = document.getElementById('shopScroll');
+            if (!container) return;
+            container.innerHTML = '';
+            shopItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'shop-item';
+                div.innerHTML = `
+                    <div style="font-size:40px;">${item.icon}</div>
+                    <div style="font-weight:bold; margin:10px 0;">${item.name}</div>
+                    <div>${item.price}💎</div>
+                    <button onclick="buyShopItem('${item.type}', ${item.value}, ${item.price})">КУПИТЬ</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        async function buyShopItem(type, value, price) {
+            const gems = parseInt(document.getElementById('gemsDisplay').innerText) || 0;
+            if (gems < price) { alert(`Не хватает гемов! Нужно ${price}💎`); return; }
+            await fetch('/api/spend_gems', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, gems: price }) });
+            if (type === 'coins') {
+                await fetch('/api/add_coins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, coins: value }) });
+            } else if (type === 'box_pack') {
+                for (let i = 0; i < value; i++) {
+                    await fetch('/api/add_box', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId }) });
+                }
+            } else if (type === 'box') {
+                await fetch('/api/add_box', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId }) });
+            }
+            refreshProfileData();
+            alert('Покупка совершена!');
+        }
+        
+        function initBrawlers() {
+            const saved = localStorage.getItem('brawlers_' + currentPlayerId);
+            if (saved) ownedBrawlers = JSON.parse(saved);
+            else ownedBrawlers = allBrawlers.filter(b => b.default).map(b => b.name);
+            const savedSelected = localStorage.getItem('selectedBrawler_' + currentPlayerId);
+            if (savedSelected && ownedBrawlers.includes(savedSelected)) selectedBrawler = savedSelected;
+            else selectedBrawler = ownedBrawlers[0];
+            renderBrawlers();
+        }
+        
+        function renderBrawlers() {
+            const container = document.getElementById('brawlersList');
+            if (!container) return;
+            container.innerHTML = '';
+            allBrawlers.forEach(b => {
+                const owned = ownedBrawlers.includes(b.name);
+                const isSelected = selectedBrawler === b.name;
+                const div = document.createElement('div');
+                div.className = `brawler-card ${owned ? 'owned' : ''} ${isSelected ? 'selected' : ''}`;
+                div.onclick = () => {
+                    if (owned) {
+                        selectedBrawler = b.name;
+                        localStorage.setItem('selectedBrawler_' + currentPlayerId, selectedBrawler);
+                        renderBrawlers();
+                        updateCenterBrawler();
+                        closeModalById('brawlersModal');
+                    }
+                };
+                div.innerHTML = `
+                    <div style="font-size:40px;">${b.icon}</div>
+                    <div style="font-weight:bold; margin:8px 0;">${b.name}</div>
+                    ${!owned ? `<div>${b.price}💎</div><button onclick="event.stopPropagation(); buyBrawler('${b.name}', ${b.price})">КУПИТЬ</button>` : (isSelected ? '<div style="color:#00ff88;">✅ ВЫБРАН</div>' : '<div style="color:#aaa;">🔓 ДОСТУПЕН</div>')}
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        async function buyBrawler(name, price) {
+            if (ownedBrawlers.includes(name)) return;
+            const gems = parseInt(document.getElementById('gemsDisplay').innerText) || 0;
+            if (gems < price) { alert(`Не хватает гемов! Нужно ${price}💎`); return; }
+            await fetch('/api/spend_gems', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, gems: price }) });
+            ownedBrawlers.push(name);
+            localStorage.setItem('brawlers_' + currentPlayerId, JSON.stringify(ownedBrawlers));
+            if (!selectedBrawler) selectedBrawler = name;
+            renderBrawlers();
+            updateCenterBrawler();
+            refreshProfileData();
+            alert(`Боец ${name} получен!`);
+        }
+        
+        function updateCenterBrawler() {
+            const brawler = allBrawlers.find(b => b.name === selectedBrawler) || allBrawlers[0];
+            document.getElementById('brawlerModel').innerHTML = brawler.icon;
+        }
+        
+        function initNews() {
+            const container = document.getElementById('newsList');
+            if (!container) return;
+            container.innerHTML = '';
+            newsList.forEach(news => {
+                const div = document.createElement('div');
+                div.className = 'news-item';
+                div.innerHTML = `
+                    <div class="news-date">📅 ${news.date}</div>
+                    <div class="news-title">${news.title}</div>
+                    <div class="news-desc">${news.desc}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
         function openShopModal() { initShop(); document.getElementById('shopModal').style.display = 'flex'; }
         function openBrawlersModal() { initBrawlers(); document.getElementById('brawlersModal').style.display = 'flex'; }
         function openNewsModal() { initNews(); document.getElementById('newsModal').style.display = 'flex'; }
@@ -693,9 +797,22 @@
         function toggleMenu() { const m = document.getElementById('menuPanel'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
         function openModal(type) { toggleMenu(); document.getElementById(type + 'Modal').style.display = 'flex'; if (type === 'leaders') loadLeaders(); if (type === 'history') updateHistoryDisplay(); }
         
-        // Заглушки для остальных функций (чтобы не было ошибок)
-        function getRankByCups(cups) { if (cups < 100) return "Бронза III"; if (cups < 250) return "Бронза II"; if (cups < 500) return "Бронза I"; if (cups < 800) return "Серебро III"; if (cups < 1200) return "Серебро II"; if (cups < 1600) return "Серебро I"; if (cups < 2000) return "Золото III"; if (cups < 2500) return "Золото II"; if (cups < 3000) return "Золото I"; if (cups < 4000) return "Алмаз III"; if (cups < 5000) return "Алмаз II"; if (cups < 6500) return "Алмаз I"; if (cups < 8000) return "Мастер"; return "Легенда"; }
-        function updateCenterBrawler() { const b = allBrawlers.find(b => b.name === selectedBrawler) || allBrawlers[0]; document.getElementById('brawlerModel').innerHTML = b.icon; }
+        function getRankByCups(cups) {
+            if (cups < 100) return "Бронза III";
+            if (cups < 250) return "Бронза II";
+            if (cups < 500) return "Бронза I";
+            if (cups < 800) return "Серебро III";
+            if (cups < 1200) return "Серебро II";
+            if (cups < 1600) return "Серебро I";
+            if (cups < 2000) return "Золото III";
+            if (cups < 2500) return "Золото II";
+            if (cups < 3000) return "Золото I";
+            if (cups < 4000) return "Алмаз III";
+            if (cups < 5000) return "Алмаз II";
+            if (cups < 6500) return "Алмаз I";
+            if (cups < 8000) return "Мастер";
+            return "Легенда";
+        }
         
         async function refreshProfileData() {
             if (!currentPlayerId) return;
@@ -719,8 +836,16 @@
                 document.getElementById('profileCoins').innerText = data.coins || 0;
                 const rank = getRankByCups(data.cups || 0);
                 document.getElementById('brawlerRank').innerText = rank;
-                if (data.avatar) document.getElementById('miniAvatar').innerHTML = data.avatar.startsWith('http') ? `<img src="${data.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : data.avatar;
-                if (data.avatar) document.getElementById('largeAvatar').innerHTML = data.avatar.startsWith('http') ? `<img src="${data.avatar}" style="width:100%;height:100%;object-fit:cover;">` : data.avatar;
+                updateCenterBrawler();
+                if (data.avatar) {
+                    if (data.avatar.startsWith('http')) {
+                        document.getElementById('miniAvatar').innerHTML = `<img src="${data.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                        document.getElementById('largeAvatar').innerHTML = `<img src="${data.avatar}" style="width:100%;height:100%;object-fit:cover;">`;
+                    } else {
+                        document.getElementById('miniAvatar').innerText = data.avatar;
+                        document.getElementById('largeAvatar').innerHTML = data.avatar;
+                    }
+                }
             }
         }
         
@@ -736,9 +861,12 @@
                 isAdmin = data.player.is_admin === true;
                 document.getElementById('authPanel').style.display = 'none';
                 document.getElementById('gamePanel').classList.remove('hidden');
-                if (isAdmin) document.getElementById('adminMenuBtn').style.display = 'block';
+                if (isAdmin) {
+                    document.getElementById('adminMenuBtn').style.display = 'block';
+                }
                 await refreshProfileData();
-                document.getElementById('languageSelect').value = localStorage.getItem('language') || 'ru';
+                currentLanguage = localStorage.getItem('language') || 'ru';
+                document.getElementById('languageSelect').value = currentLanguage;
                 document.getElementById('languageSelect').onchange = (e) => { localStorage.setItem('language', e.target.value); };
             } else document.getElementById('authMessage').innerText = data.message;
         }
@@ -746,7 +874,7 @@
         document.getElementById('nickname').addEventListener('input', e => document.getElementById('adminPasswordGroup').classList.toggle('hidden', e.target.value !== 'unity'));
         window.onclick = event => { if (event.target.classList.contains('modal')) event.target.style.display = 'none'; };
         
-        // Заглушки для недостающих функций (чтобы не было ошибок)
+        // Заглушки для недостающих функций
         function loadLeaders() { document.getElementById('leadersList').innerHTML = '<div>Загрузка...</div>'; }
         function updateHistoryDisplay() { }
         function switchLeaderTab(tab) { }
@@ -759,6 +887,7 @@
         function closeActivationModal() { }
         function startBattleSession() { alert('Боевая система в разработке'); }
         function closeBattleModal() { document.getElementById('battleModal').style.display = 'none'; }
+        function closeResultsModal() { document.getElementById('resultsModal').style.display = 'none'; }
         function changeNickname() { alert('Смена ника временно недоступна'); }
         function changeColorOnly(color) { alert('Смена цвета временно недоступна'); }
         function openProfileModal() { refreshProfileData(); document.getElementById('profileModal').style.display = 'flex'; }
