@@ -5,7 +5,7 @@ const port = process.env.PORT || 3000;
 
 const db = new sqlite3.Database('database.db');
 
-// ========== СОЗДАНИЕ ТАБЛИЦ ==========
+// Создание таблиц
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,14 +25,36 @@ db.serialize(() => {
         is_admin INTEGER DEFAULT 0,
         path_data TEXT DEFAULT '[]'
     )`);
-    
-    // Добавляем колонки, если их нет (для старых баз)
-    db.run(`ALTER TABLE users ADD COLUMN nickname_color TEXT DEFAULT '#ffffff'`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN record_cups INTEGER DEFAULT 0`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN gems INTEGER DEFAULT 0`, () => {});
-    db.run(`ALTER TABLE users ADD COLUMN path_data TEXT DEFAULT '[]'`, () => {});
-    
-    // Админ unity / ALT F4
+
+    // Таблица промокодов
+    db.run(`CREATE TABLE IF NOT EXISTS promocodes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        code TEXT UNIQUE,
+        reward TEXT,
+        max_activations INTEGER,
+        current_activations INTEGER DEFAULT 0
+    )`);
+
+    // Таблица репортов
+    db.run(`CREATE TABLE IF NOT EXISTS reports (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        from_player_id INTEGER,
+        to_player_id INTEGER,
+        reason TEXT,
+        evidence TEXT,
+        status TEXT DEFAULT 'pending'
+    )`);
+
+    // Таблица ивентов
+    db.run(`CREATE TABLE IF NOT EXISTS events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        event_type TEXT,
+        end_time DATETIME,
+        is_active INTEGER DEFAULT 1
+    )`);
+
+    // Создаём админов
     db.get(`SELECT * FROM users WHERE login = 'unity'`, (err, row) => {
         if (!row) {
             const tag = '#' + Math.random().toString(36).substr(2, 6).toUpperCase();
@@ -40,8 +62,6 @@ db.serialize(() => {
                 ['unity', 'ALT F4', 'Администратор', tag, 1]);
         }
     });
-    
-    // Админ root / ZXC1337
     db.get(`SELECT * FROM users WHERE login = 'root'`, (err, row) => {
         if (!row) {
             const tag = '#' + Math.random().toString(36).substr(2, 6).toUpperCase();
@@ -50,7 +70,7 @@ db.serialize(() => {
         }
     });
 
-    // Добавляем тестовых игроков для таблицы лидеров (если нет)
+    // Тестовые игроки
     db.get(`SELECT COUNT(*) as count FROM users WHERE login LIKE 'test_%'`, (err, row) => {
         if (row.count === 0) {
             const testPlayers = [
@@ -65,7 +85,6 @@ db.serialize(() => {
                 db.run(`INSERT INTO users (login, nickname, tag, cups, total_boxes, coins) VALUES (?, ?, ?, ?, ?, ?)`,
                     [p.login, p.nickname, tag, p.cups, p.boxes, 500]);
             });
-            console.log('✅ Добавлено 5 тестовых игроков для таблицы лидеров');
         }
     });
 });
@@ -78,20 +97,16 @@ app.use(express.json());
 // Вход / регистрация
 app.post('/api/login', (req, res) => {
     const { nickname, password } = req.body;
-    
     db.get(`SELECT * FROM users WHERE nickname = ?`, [nickname], (err, player) => {
         if (player) {
-            if (player.is_admin === 1) {
-                if (password === 'ALT F4' || password === 'ZXC1337') {
-                    res.json({ success: true, player: { id: player.id, nickname: player.nickname, tag: player.tag, avatar: player.avatar, coins: player.coins, total_boxes: player.total_boxes, cups: player.cups, gems: player.gems, is_admin: true } });
-                } else {
-                    res.json({ success: false, message: 'Неверный пароль администратора' });
-                }
-            } else {
+            if (player.is_admin === 1 && (password === 'ALT F4' || password === 'ZXC1337')) {
+                res.json({ success: true, player: { id: player.id, nickname: player.nickname, tag: player.tag, avatar: player.avatar, coins: player.coins, total_boxes: player.total_boxes, cups: player.cups, gems: player.gems, is_admin: true } });
+            } else if (player.is_admin === 0) {
                 res.json({ success: true, player: { id: player.id, nickname: player.nickname, tag: player.tag, avatar: player.avatar, coins: player.coins, total_boxes: player.total_boxes, cups: player.cups, gems: player.gems, is_admin: false } });
+            } else {
+                res.json({ success: false, message: 'Неверный пароль администратора' });
             }
         } else {
-            // Создаём нового игрока
             const tag = '#' + Math.random().toString(36).substr(2, 6).toUpperCase();
             db.run(`INSERT INTO users (nickname, tag) VALUES (?, ?)`, [nickname, tag], function(err) {
                 if (err) return res.json({ success: false, message: 'Ошибка создания' });
@@ -103,7 +118,7 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-// Получить всех пользователей (для таблицы лидеров и админки)
+// Получить всех пользователей
 app.get('/api/users', (req, res) => {
     db.all(`SELECT id, nickname, avatar, nickname_color, cups, total_boxes, coins, gems, is_banned FROM users`, (err, users) => {
         if (err) return res.json([]);
@@ -111,7 +126,7 @@ app.get('/api/users', (req, res) => {
     });
 });
 
-// Получить данные игрока
+// Получить одного игрока
 app.get('/api/player/:id', (req, res) => {
     const id = req.params.id;
     db.get(`SELECT id, nickname, tag, avatar, nickname_color, coins, total_boxes, cups, record_cups, gems, is_banned, ban_reason, path_data FROM users WHERE id = ?`, [id], (err, player) => {
@@ -127,10 +142,14 @@ app.post('/api/change_avatar', (req, res) => {
     res.json({ success: true });
 });
 
-// Смена никнейма (только цвет пока)
+// Смена цвета ника
 app.post('/api/change_nickname', (req, res) => {
-    const { playerId, color } = req.body;
-    db.run(`UPDATE users SET nickname_color = ? WHERE id = ?`, [color, playerId]);
+    const { playerId, color, newNickname } = req.body;
+    if (newNickname) {
+        db.run(`UPDATE users SET nickname = ?, nickname_color = ? WHERE id = ?`, [newNickname, color, playerId]);
+    } else {
+        db.run(`UPDATE users SET nickname_color = ? WHERE id = ?`, [color, playerId]);
+    }
     res.json({ success: true });
 });
 
@@ -159,15 +178,6 @@ app.post('/api/spend_gems', (req, res) => {
 app.post('/api/add_box', (req, res) => {
     const { playerId } = req.body;
     db.run(`UPDATE users SET total_boxes = total_boxes + 1 WHERE id = ?`, [playerId]);
-    // Симуляция выпадения из ящика (добавляем монеты или кубки)
-    const rand = Math.random() * 100;
-    let coinsGain = 0;
-    let cupsGain = 0;
-    if (rand < 50) { coinsGain = 50; }
-    else if (rand < 75) { coinsGain = 100; }
-    else if (rand < 90) { cupsGain = 5; }
-    else { cupsGain = 20; }
-    db.run(`UPDATE users SET coins = coins + ?, cups = cups + ? WHERE id = ?`, [coinsGain, cupsGain, playerId]);
     res.json({ success: true });
 });
 
@@ -184,14 +194,14 @@ app.post('/api/add_cups', (req, res) => {
     });
 });
 
-// Бан игрока (моментальный)
+// Бан
 app.post('/api/ban', (req, res) => {
     const { userId, reason, hours } = req.body;
     db.run(`UPDATE users SET is_banned = 1, ban_reason = ? WHERE id = ?`, [reason, userId]);
     res.json({ success: true });
 });
 
-// Разбан игрока
+// Разбан
 app.post('/api/unban', (req, res) => {
     const { userId } = req.body;
     db.run(`UPDATE users SET is_banned = 0, ban_reason = NULL WHERE id = ?`, [userId]);
@@ -212,13 +222,11 @@ app.get('/api/promocodes', (req, res) => {
         res.json(promos || []);
     });
 });
-
 app.post('/api/create_promo', (req, res) => {
     const { code, reward, max } = req.body;
     db.run(`INSERT INTO promocodes (code, reward, max_activations) VALUES (?, ?, ?)`, [code, reward, max]);
     res.json({ success: true });
 });
-
 app.post('/api/delete_promo', (req, res) => {
     const { id } = req.body;
     db.run(`DELETE FROM promocodes WHERE id = ?`, [id]);
@@ -232,13 +240,11 @@ app.get('/api/events', (req, res) => {
         res.json(events || []);
     });
 });
-
 app.post('/api/create_event', (req, res) => {
     const { name, type, end_time } = req.body;
     db.run(`INSERT INTO events (name, event_type, end_time, is_active) VALUES (?, ?, ?, 1)`, [name, type, end_time]);
     res.json({ success: true });
 });
-
 app.post('/api/stop_event', (req, res) => {
     const { eventId } = req.body;
     db.run(`UPDATE events SET is_active = 0 WHERE id = ?`, [eventId]);
@@ -255,14 +261,11 @@ app.get('/api/reports', (req, res) => {
         res.json(reports || []);
     });
 });
-
 app.post('/api/resolve_report', (req, res) => {
     const { reportId, action } = req.body;
     if (action === 'ban') {
         db.get(`SELECT to_player_id FROM reports WHERE id = ?`, [reportId], (err, report) => {
-            if (report) {
-                db.run(`UPDATE users SET is_banned = 1 WHERE id = ?`, [report.to_player_id]);
-            }
+            if (report) db.run(`UPDATE users SET is_banned = 1 WHERE id = ?`, [report.to_player_id]);
         });
     }
     db.run(`UPDATE reports SET status = 'resolved' WHERE id = ?`, [reportId]);
