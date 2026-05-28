@@ -135,9 +135,10 @@ app.post('/api/add_box', (req, res) => {
     res.json({ success: true });
 });
 
-// ========== ДОБАВЛЕНИЕ КУБКОВ (для боёв) ==========
+// Добавление кубков (за бои)
 app.post('/api/add_cups', (req, res) => {
     const { playerId, cups } = req.body;
+    console.log(`🎮 Игрок ${playerId} получает ${cups} кубков`);
     db.get(`SELECT cups, record_cups FROM users WHERE id = ?`, [playerId], (err, user) => {
         if (user) {
             const newCups = (user.cups || 0) + cups;
@@ -148,26 +149,25 @@ app.post('/api/add_cups', (req, res) => {
     });
 });
 
-// ========== БАН И РАЗБАН (МОМЕНТАЛЬНЫЙ) ==========
+// ========== БАН И РАЗБАН ==========
 const userSockets = new Map();
 
 app.post('/api/ban', (req, res) => {
-    const { userId, reason, hours } = req.body;
-    console.log('🔨 Бан игрока:', userId, reason);
+    const { userId, reason } = req.body;
+    console.log(`🔨 БАН игрока ${userId}: ${reason}`);
     db.run(`UPDATE users SET is_banned = 1, ban_reason = ? WHERE id = ?`, [reason, userId]);
     
-    // Мгновенный кик забаненного игрока
     const socket = userSockets.get(parseInt(userId));
     if (socket) {
         socket.emit('session_terminated', { reason: reason });
-        socket.disconnect(true);
+        setTimeout(() => socket.disconnect(true), 100);
     }
     res.json({ success: true });
 });
 
 app.post('/api/unban', (req, res) => {
     const { userId } = req.body;
-    console.log('✅ Разбан игрока:', userId);
+    console.log(`✅ РАЗБАН игрока ${userId}`);
     db.run(`UPDATE users SET is_banned = 0, ban_reason = NULL WHERE id = ?`, [userId]);
     res.json({ success: true });
 });
@@ -236,27 +236,34 @@ app.post('/api/resolve_report', (req, res) => {
     res.json({ success: true });
 });
 
-// Socket.IO
+// ========== SOCKET.IO ==========
+const http = require('http');
 const socketIo = require('socket.io');
-const server = require('http').createServer(app);
+const server = http.createServer(app);
 const io = socketIo(server);
 
 io.on('connection', (socket) => {
-    console.log('✅ Игрок подключился:', socket.id);
+    console.log('✅ Сокет подключён:', socket.id);
     
     socket.on('auth', (userId, callback) => {
         const uid = parseInt(userId);
         db.get(`SELECT * FROM users WHERE id = ?`, [uid], (err, user) => {
-            if (!user) return callback({ success: false });
-            socket.userId = uid;
-            userSockets.set(uid, socket);
-            callback({ success: true });
+            if (err || !user) {
+                callback({ success: false });
+            } else {
+                socket.userId = uid;
+                userSockets.set(uid, socket);
+                callback({ success: true });
+                console.log(`👤 Игрок ${user.nickname} (${uid}) авторизован`);
+            }
         });
     });
     
     socket.on('disconnect', () => {
-        if (socket.userId) userSockets.delete(socket.userId);
-        console.log('❌ Игрок отключился:', socket.id);
+        if (socket.userId) {
+            console.log(`❌ Игрок ${socket.userId} отключился`);
+            userSockets.delete(socket.userId);
+        }
     });
 });
 
