@@ -26,35 +26,7 @@ db.serialize(() => {
         path_data TEXT DEFAULT '[]'
     )`);
 
-    // Таблица промокодов
-    db.run(`CREATE TABLE IF NOT EXISTS promocodes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        code TEXT UNIQUE,
-        reward TEXT,
-        max_activations INTEGER,
-        current_activations INTEGER DEFAULT 0
-    )`);
-
-    // Таблица репортов
-    db.run(`CREATE TABLE IF NOT EXISTS reports (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        from_player_id INTEGER,
-        to_player_id INTEGER,
-        reason TEXT,
-        evidence TEXT,
-        status TEXT DEFAULT 'pending'
-    )`);
-
-    // Таблица ивентов
-    db.run(`CREATE TABLE IF NOT EXISTS events (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        event_type TEXT,
-        end_time DATETIME,
-        is_active INTEGER DEFAULT 1
-    )`);
-
-    // Создаём админов
+    // Админы
     db.get(`SELECT * FROM users WHERE login = 'unity'`, (err, row) => {
         if (!row) {
             const tag = '#' + Math.random().toString(36).substr(2, 6).toUpperCase();
@@ -67,24 +39,6 @@ db.serialize(() => {
             const tag = '#' + Math.random().toString(36).substr(2, 6).toUpperCase();
             db.run(`INSERT INTO users (login, password, nickname, tag, is_admin) VALUES (?, ?, ?, ?, ?)`,
                 ['root', 'ZXC1337', 'Root Admin', tag, 1]);
-        }
-    });
-
-    // Тестовые игроки
-    db.get(`SELECT COUNT(*) as count FROM users WHERE login LIKE 'test_%'`, (err, row) => {
-        if (row.count === 0) {
-            const testPlayers = [
-                { login: 'test_pro', nickname: 'ProGamer', cups: 12500, boxes: 340 },
-                { login: 'test_legend', nickname: 'LegendMaster', cups: 8700, boxes: 210 },
-                { login: 'test_fighter', nickname: 'FighterX', cups: 5200, boxes: 150 },
-                { login: 'test_noob', nickname: 'NoobSaibot', cups: 350, boxes: 12 },
-                { login: 'test_veteran', nickname: 'OldGuard', cups: 25400, boxes: 890 }
-            ];
-            testPlayers.forEach(p => {
-                const tag = '#' + Math.random().toString(36).substr(2, 6).toUpperCase();
-                db.run(`INSERT INTO users (login, nickname, tag, cups, total_boxes, coins) VALUES (?, ?, ?, ?, ?, ?)`,
-                    [p.login, p.nickname, tag, p.cups, p.boxes, 500]);
-            });
         }
     });
 });
@@ -104,7 +58,7 @@ app.post('/api/login', (req, res) => {
             } else if (player.is_admin === 0) {
                 res.json({ success: true, player: { id: player.id, nickname: player.nickname, tag: player.tag, avatar: player.avatar, coins: player.coins, total_boxes: player.total_boxes, cups: player.cups, gems: player.gems, is_admin: false } });
             } else {
-                res.json({ success: false, message: 'Неверный пароль администратора' });
+                res.json({ success: false, message: 'Неверный пароль' });
             }
         } else {
             const tag = '#' + Math.random().toString(36).substr(2, 6).toUpperCase();
@@ -118,9 +72,9 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-// Получить всех пользователей
+// Получить всех игроков
 app.get('/api/users', (req, res) => {
-    db.all(`SELECT id, nickname, avatar, nickname_color, cups, total_boxes, coins, gems, is_banned FROM users`, (err, users) => {
+    db.all(`SELECT id, nickname, avatar, nickname_color, cups, total_boxes, coins, gems, is_banned, ban_reason FROM users`, (err, users) => {
         if (err) return res.json([]);
         res.json(users || []);
     });
@@ -142,7 +96,7 @@ app.post('/api/change_avatar', (req, res) => {
     res.json({ success: true });
 });
 
-// Смена цвета ника
+// Смена цвета/ника
 app.post('/api/change_nickname', (req, res) => {
     const { playerId, color, newNickname } = req.body;
     if (newNickname) {
@@ -194,16 +148,17 @@ app.post('/api/add_cups', (req, res) => {
     });
 });
 
-// Бан
+// ========== БАН И РАЗБАН ==========
 app.post('/api/ban', (req, res) => {
     const { userId, reason, hours } = req.body;
+    console.log('🔨 Бан игрока:', userId, reason);
     db.run(`UPDATE users SET is_banned = 1, ban_reason = ? WHERE id = ?`, [reason, userId]);
     res.json({ success: true });
 });
 
-// Разбан
 app.post('/api/unban', (req, res) => {
     const { userId } = req.body;
+    console.log('✅ Разбан игрока:', userId);
     db.run(`UPDATE users SET is_banned = 0, ban_reason = NULL WHERE id = ?`, [userId]);
     res.json({ success: true });
 });
