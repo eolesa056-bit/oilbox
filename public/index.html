@@ -446,6 +446,7 @@
         let currentBattleMode = 'crystal';
         let ownedBrawlers = [];
         let selectedBrawler = null;
+        let socket = null;
         
         // Данные Бравл Пасса
         let passData = { premiumActive: false, currentLevel: 1, currentExp: 0, claimedFree: [], claimedPremium: [] };
@@ -800,49 +801,64 @@
             renderPass(); refreshProfileData();
         }
         
-        // ========== БОЕВАЯ СИСТЕМА ==========
+        // ========== БОЕВАЯ СИСТЕМА (ДАЁТ КУБКИ) ==========
         function openBattleModal() { document.getElementById('battleModal').style.display = 'flex'; }
+        
+        async function updatePlayerCups(cups) { 
+            if (!currentPlayerId) return; 
+            await fetch('/api/add_cups', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, cups: cups }) }); 
+            refreshProfileData(); 
+        }
         
         function startBattleSession() {
             const gamesToPlay = parseInt(document.getElementById('battleGamesCount').value) || 3;
             if (gamesToPlay < 1 || gamesToPlay > 25) { alert('Количество игр от 1 до 25'); return; }
             document.getElementById('battleModal').style.display = 'none';
             
-            let battleResults = [], totalWins = 0, totalReward = 0;
+            let battleResults = [], totalWins = 0, totalCups = 0;
             for (let i = 0; i < gamesToPlay; i++) {
                 const isWin = Math.random() < 0.6;
-                const reward = isWin ? 20 : 10;
-                totalReward += reward; if (isWin) totalWins++;
-                battleResults.push({ isWin, reward });
+                const cupsReward = isWin ? 20 : 10;
+                totalCups += cupsReward;
+                if (isWin) totalWins++;
+                battleResults.push({ isWin, cupsReward });
             }
             
-            document.getElementById('gameplayModeName').innerHTML = document.querySelector('.mode-btn.active')?.innerText || "Бой";
+            document.getElementById('gameplayModeName').innerHTML = document.querySelector('#battleModeSelector .mode-btn.active')?.innerText || "Бой";
             document.getElementById('gameplayBattles').innerHTML = '';
             let timeLeft = 30;
             const timerElement = document.getElementById('gameplayTimer');
             timerElement.textContent = timeLeft;
-            const interval = setInterval(() => { timeLeft--; timerElement.textContent = timeLeft; if (timeLeft <= 0) { clearInterval(interval); finishSimulation(battleResults, totalWins, totalReward, gamesToPlay); } }, 1000);
+            const interval = setInterval(() => { timeLeft--; timerElement.textContent = timeLeft; if (timeLeft <= 0) { clearInterval(interval); finishSimulation(battleResults, totalWins, totalCups, gamesToPlay); } }, 1000);
             document.getElementById('gameplayModal').style.display = 'flex';
         }
         
-        function finishSimulation(battleResults, totalWins, totalReward, gamesToPlay) {
+        function finishSimulation(battleResults, totalWins, totalCups, gamesToPlay) {
             const container = document.getElementById('gameplayBattles');
             container.innerHTML = '';
-            battleResults.forEach((res, i) => { const div = document.createElement('div'); div.className = 'battle-result-line'; div.innerHTML = `<div>⚔ БОЙ ${i+1}: ${res.isWin ? '🏆 ПОБЕДА' : '💔 ПОРАЖЕНИЕ'} | 💰 +${res.reward} монет</div>`; container.appendChild(div); });
-            let totalCoins = battleResults.reduce((s, r) => s + r.reward, 0);
-            updatePlayerBalance(totalCoins, 0);
-            setTimeout(() => { document.getElementById('gameplayModal').style.display = 'none'; showResults(totalWins, totalReward, gamesToPlay); }, 3000);
+            battleResults.forEach((res, i) => { const div = document.createElement('div'); div.className = 'battle-result-line'; div.innerHTML = `<div>⚔ БОЙ ${i+1}: ${res.isWin ? '🏆 ПОБЕДА' : '💔 ПОРАЖЕНИЕ'} | 🏆 +${res.cupsReward} кубков</div>`; container.appendChild(div); });
+            updatePlayerCups(totalCups);
+            
+            // Сохраняем в историю
+            for (let i = 0; i < battleResults.length; i++) {
+                const res = battleResults[i];
+                const historyItem = {
+                    modeName: document.querySelector('#battleModeSelector .mode-btn.active')?.innerText || "Бой",
+                    result: res.isWin ? 'Победа' : 'Поражение',
+                    reward: res.cupsReward,
+                    time: new Date().toLocaleString()
+                };
+                battleHistory.unshift(historyItem);
+            }
+            localStorage.setItem('battleHistory_' + currentPlayerId, JSON.stringify(battleHistory));
+            updateHistoryDisplay();
+            
+            setTimeout(() => { document.getElementById('gameplayModal').style.display = 'none'; showResults(totalWins, totalCups, gamesToPlay); }, 3000);
         }
         
-        function showResults(wins, reward, games) { 
-            document.getElementById('resultsContent').innerHTML = `<div style="font-size:24px; margin:20px;">⭐ ПОБЕД: ${wins}/${games}</div><div style="font-size:24px; margin:20px;">💰 ВСЕГО МОНЕТ: ${reward}</div>`; 
+        function showResults(wins, cups, games) { 
+            document.getElementById('resultsContent').innerHTML = `<div style="font-size:24px; margin:20px;">⭐ ПОБЕД: ${wins}/${games}</div><div style="font-size:24px; margin:20px;">🏆 ВСЕГО КУБКОВ: ${cups}</div>`; 
             document.getElementById('resultsModal').style.display = 'flex'; 
-        }
-        
-        async function updatePlayerBalance(coins, cups) { 
-            if (!currentPlayerId) return; 
-            await fetch('/api/add_coins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, coins: coins }) }); 
-            refreshProfileData(); 
         }
         
         // ========== ПУТЬ К СЛАВЕ ==========
@@ -927,7 +943,7 @@
             if (saved) battleHistory = JSON.parse(saved);
             if (!battleHistory.length) { container.innerHTML = 'Нет боёв'; return; }
             container.innerHTML = '';
-            battleHistory.slice(0,20).forEach(b => { const div = document.createElement('div'); div.className = 'history-item'; div.innerHTML = `<div><strong>${b.modeName}</strong><br>${b.time}</div><div style="color: ${b.result === 'Победа' ? '#00ff88' : '#ff6b6b'}">${b.result}</div><div>💰 +${b.reward}</div>`; container.appendChild(div); });
+            battleHistory.slice(0,20).forEach(b => { const div = document.createElement('div'); div.className = 'history-item'; div.innerHTML = `<div><strong>${b.modeName}</strong><br>${b.time}</div><div style="color: ${b.result === 'Победа' ? '#00ff88' : '#ff6b6b'}">${b.result}</div><div>🏆 +${b.reward} кубков</div>`; container.appendChild(div); });
         }
         
         // ========== ПРОФИЛЬ ==========
@@ -1035,6 +1051,15 @@
                 document.getElementById('authPanel').style.display = 'none';
                 document.getElementById('gamePanel').classList.remove('hidden');
                 if (isAdmin) document.getElementById('adminMenuBtn').style.display = 'block';
+                
+                // Подключаем Socket.IO
+                socket = io();
+                socket.emit('auth', currentPlayerId);
+                socket.on('session_terminated', (data) => {
+                    alert(`⛔ СЕССИЯ ЗАВЕРШЕНА! ПЕРЕЗАГРУЗИТЕ ИГРУ ⛔\n\nПричина: ${data?.reason || 'Нарушение правил'}`);
+                    window.location.reload();
+                });
+                
                 await refreshProfileData();
                 currentLanguage = localStorage.getItem('language') || 'ru';
                 document.getElementById('languageSelect').value = currentLanguage;
