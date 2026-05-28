@@ -53,6 +53,10 @@ app.post('/api/login', (req, res) => {
     const { nickname, password } = req.body;
     db.get(`SELECT * FROM users WHERE nickname = ?`, [nickname], (err, player) => {
         if (player) {
+            // Проверка бана при входе
+            if (player.is_banned === 1) {
+                return res.json({ success: false, message: `Вы забанены! Причина: ${player.ban_reason || 'Нарушение правил'}` });
+            }
             if (player.is_admin === 1 && (password === 'ALT F4' || password === 'ZXC1337')) {
                 res.json({ success: true, player: { id: player.id, nickname: player.nickname, tag: player.tag, avatar: player.avatar, coins: player.coins, total_boxes: player.total_boxes, cups: player.cups, gems: player.gems, is_admin: true } });
             } else if (player.is_admin === 0) {
@@ -80,7 +84,7 @@ app.get('/api/users', (req, res) => {
     });
 });
 
-// Получить одного игрока
+// Получить одного игрока (с проверкой бана)
 app.get('/api/player/:id', (req, res) => {
     const id = req.params.id;
     db.get(`SELECT id, nickname, tag, avatar, nickname_color, coins, total_boxes, cups, record_cups, gems, is_banned, ban_reason, path_data FROM users WHERE id = ?`, [id], (err, player) => {
@@ -135,12 +139,15 @@ app.post('/api/add_box', (req, res) => {
     res.json({ success: true });
 });
 
-// Добавление кубков (за бои)
+// Добавление кубков
 app.post('/api/add_cups', (req, res) => {
     const { playerId, cups } = req.body;
     console.log(`🎮 Игрок ${playerId} получает ${cups} кубков`);
-    db.get(`SELECT cups, record_cups FROM users WHERE id = ?`, [playerId], (err, user) => {
+    db.get(`SELECT cups, record_cups, is_banned, ban_reason FROM users WHERE id = ?`, [playerId], (err, user) => {
         if (user) {
+            if (user.is_banned === 1) {
+                return res.json({ success: false, message: `Вы забанены! Причина: ${user.ban_reason || 'Нарушение правил'}` });
+            }
             const newCups = (user.cups || 0) + cups;
             const newRecord = Math.max(user.record_cups || 0, newCups);
             db.run(`UPDATE users SET cups = ?, record_cups = ? WHERE id = ?`, [newCups, newRecord, playerId]);
@@ -250,6 +257,10 @@ io.on('connection', (socket) => {
         db.get(`SELECT * FROM users WHERE id = ?`, [uid], (err, user) => {
             if (err || !user) {
                 callback({ success: false });
+            } else if (user.is_banned === 1) {
+                callback({ success: false, message: `Вы забанены! Причина: ${user.ban_reason || 'Нарушение правил'}` });
+                socket.emit('session_terminated', { reason: user.ban_reason || 'Нарушение правил' });
+                setTimeout(() => socket.disconnect(true), 100);
             } else {
                 socket.userId = uid;
                 userSockets.set(uid, socket);
