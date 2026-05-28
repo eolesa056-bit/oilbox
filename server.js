@@ -135,7 +135,7 @@ app.post('/api/add_box', (req, res) => {
     res.json({ success: true });
 });
 
-// Добавление кубков
+// ========== ДОБАВЛЕНИЕ КУБКОВ (для боёв) ==========
 app.post('/api/add_cups', (req, res) => {
     const { playerId, cups } = req.body;
     db.get(`SELECT cups, record_cups FROM users WHERE id = ?`, [playerId], (err, user) => {
@@ -148,11 +148,20 @@ app.post('/api/add_cups', (req, res) => {
     });
 });
 
-// ========== БАН И РАЗБАН ==========
+// ========== БАН И РАЗБАН (МОМЕНТАЛЬНЫЙ) ==========
+const userSockets = new Map();
+
 app.post('/api/ban', (req, res) => {
     const { userId, reason, hours } = req.body;
     console.log('🔨 Бан игрока:', userId, reason);
     db.run(`UPDATE users SET is_banned = 1, ban_reason = ? WHERE id = ?`, [reason, userId]);
+    
+    // Мгновенный кик забаненного игрока
+    const socket = userSockets.get(parseInt(userId));
+    if (socket) {
+        socket.emit('session_terminated', { reason: reason });
+        socket.disconnect(true);
+    }
     res.json({ success: true });
 });
 
@@ -227,4 +236,28 @@ app.post('/api/resolve_report', (req, res) => {
     res.json({ success: true });
 });
 
-app.listen(port, () => console.log(`🚀 Сервер на порту ${port}`));
+// Socket.IO
+const socketIo = require('socket.io');
+const server = require('http').createServer(app);
+const io = socketIo(server);
+
+io.on('connection', (socket) => {
+    console.log('✅ Игрок подключился:', socket.id);
+    
+    socket.on('auth', (userId, callback) => {
+        const uid = parseInt(userId);
+        db.get(`SELECT * FROM users WHERE id = ?`, [uid], (err, user) => {
+            if (!user) return callback({ success: false });
+            socket.userId = uid;
+            userSockets.set(uid, socket);
+            callback({ success: true });
+        });
+    });
+    
+    socket.on('disconnect', () => {
+        if (socket.userId) userSockets.delete(socket.userId);
+        console.log('❌ Игрок отключился:', socket.id);
+    });
+});
+
+server.listen(port, () => console.log(`🚀 Сервер на порту ${port}`));
