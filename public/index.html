@@ -201,7 +201,6 @@
         .news-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
         .news-desc { font-size: 14px; color: #ccc; }
 
-        /* Стили профиля */
         .profile-container, .glory-container, .settings-container, .leaders-container, .history-container {
             background: linear-gradient(145deg, #0f172a, #020617);
             width: 90%;
@@ -265,7 +264,6 @@
         .color-options { display: flex; gap: 20px; justify-content: center; margin: 30px 0; flex-wrap: wrap; }
         .color-circle { width: 55px; height: 55px; border-radius: 50%; cursor: pointer; border: 3px solid #fff; }
         
-        /* Окна боя (заглушки) */
         .battle-modal, .gameplay-modal, .results-modal {
             display: none;
             position: fixed;
@@ -402,7 +400,6 @@
         let ownedBrawlers = [];
         let selectedBrawler = null;
         
-        // Товары магазина
         const shopItems = [
             { name: "Обычный ящик", price: 50, type: "box", value: "common", icon: "🎁" },
             { name: "Редкий ящик", price: 150, type: "box", value: "rare", icon: "🎁✨" },
@@ -434,7 +431,6 @@
             { date: "25.05.2026", title: "👑 Админ-панель", desc: "Управление игроками и банами" }
         ];
         
-        // ========== ОСНОВНЫЕ ФУНКЦИИ ==========
         function initShop() {
             const container = document.getElementById('shopScroll');
             if (!container) return;
@@ -565,7 +561,6 @@
             return "Легенда";
         }
         
-        // Смена аватарки
         async function changeAvatar(avatarValue, isUrl = false) {
             const DEV_AVATAR_URL = "https://yt3.googleusercontent.com/wEnonoxntKdkIuHZbNouYlz6YoCchSbx7tpBRaVS6V08XzJYkvNZaG34RwZV7khnoF6hqI-kGw=s900-c-k-c0x00ffffff-no-rj";
             await fetch('/api/change_avatar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, avatar: isUrl ? DEV_AVATAR_URL : avatarValue }) });
@@ -573,13 +568,11 @@
             closeAvatarPicker();
         }
         
-        // Смена цвета ника
         async function changeColorOnly(color) {
             await fetch('/api/change_nickname', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, color: color }) });
             await refreshProfileData();
         }
         
-        // Смена никнейма
         async function changeNickname() {
             const newNick = document.getElementById('newNicknameInput').value.trim();
             if (!newNick) return alert("Введи никнейм");
@@ -682,7 +675,6 @@
         document.getElementById('nickname').addEventListener('input', e => document.getElementById('adminPasswordGroup').classList.toggle('hidden', e.target.value !== 'unity' && e.target.value !== 'root'));
         window.onclick = event => { if (event.target.classList.contains('modal')) event.target.style.display = 'none'; };
         
-        // Заглушки для остальных функций
         function loadLeaders() { document.getElementById('leadersList').innerHTML = '<div>Загрузка...</div>'; }
         function updateHistoryDisplay() { }
         function switchLeaderTab(tab) { }
